@@ -2,19 +2,28 @@
 
 ## Overview
 
-This extension for the Gemini CLI makes your shell aliases available to Gemini. It parses your shell configuration files (like `.bashrc`, `.bash_aliases`, `.zshrc`, etc.) and exposes the aliases to the Gemini CLI. This allows you to use your favorite shell aliases within the Gemini CLI environment.
+This extension for the Gemini CLI makes your shell aliases available to Gemini. It parses your shell configuration files (like `.bashrc`, `.bash_aliases`, `.zshrc`, etc.) and exposes the aliases as custom commands in the Gemini CLI.
+
+## How it Works
+
+This extension uses a **Model Context Protocol (MCP) Server** to:
+1.  Read your shell alias files.
+2.  Parse the alias definitions.
+3.  Register each alias as a new command in the Gemini CLI.
+
+For example, an alias `alias ll='ls -alF'` will be exposed as a command `/ll`. When you run `/ll` in the Gemini CLI, the extension will execute the command `ls -alF` and display the output.
 
 ## Features
 
 *   Parses shell alias definitions from common shell configuration files.
+*   Exposes aliases as custom commands in the Gemini CLI.
 *   Supports `bash` aliases.
 *   Planned support for other shells like `zsh`, `fish`, etc.
-*   Automatic detection of alias files.
 *   Configuration options to specify custom alias file paths.
 
 ## Supported Shells
 
-*   [x] Bash (`.bashrc`, `.bash_aliases`)
+*   [ ] Bash (`.bashrc`, `.bash_aliases`)
 *   [ ] Zsh (`.zshrc`)
 *   [ ] Fish (`.config/fish/config.fish`)
 
@@ -24,11 +33,13 @@ This extension for the Gemini CLI makes your shell aliases available to Gemini. 
 
 ## Usage
 
-Once the extension is installed, Gemini CLI will automatically become aware of your shell aliases. You can then use them in your prompts.
+1.  Configure the paths to your alias files in the `gemini-extension.json` file.
+2.  Install and enable the extension.
+3.  Use your aliases as commands in the Gemini CLI (e.g., `/ll`).
 
 ## Configuration
 
-The extension attempts to automatically find your shell alias files. If you use a non-standard location, you can configure the paths in the `gemini-extension.json` file.
+You can configure the paths to your alias files in the `gemini-extension.json` file.
 
 Example `gemini-extension.json`:
 
@@ -39,14 +50,14 @@ Example `gemini-extension.json`:
   "description": "Exposes shell aliases to Gemini CLI.",
   "author": "Your Name",
   "license": "MIT",
-  "commands": [],
+  "mcp_server": {
+    "command": ["node", "${extensionPath}/dist/index.js"]
+  },
   "configuration": {
-    "bash": {
-      "files": [
-        "~/.bashrc",
-        "~/.bash_aliases"
-      ]
-    }
+    "aliasFiles": [
+      "./.bashrc",
+      "./.bash_aliases"
+    ]
   }
 }
 ```

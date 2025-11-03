@@ -2,22 +2,24 @@
 
 ## Core Functionality
 
-*   [ ] Implement the core logic for parsing alias files.
-*   [ ] Develop a robust mechanism to handle different alias formats (e.g., with/without quotes, etc.).
-*   [ ] Implement the logic to expose the parsed aliases to the Gemini CLI.
-*   [ ] Add error handling for cases where alias files are not found or are malformed.
+*   [ ] Create the basic structure for the MCP server (e.g., in TypeScript).
+*   [ ] Implement the logic to read the alias file paths from the `gemini-extension.json` configuration.
+*   [ ] Implement the file reading logic in the MCP server.
+*   [ ] Implement the alias parsing logic using regular expressions.
+*   [ ] Implement the logic to register the parsed aliases as commands with the Gemini CLI.
+*   [ ] Implement the command execution logic in the MCP server.
+*   [ ] Add error handling for file not found, parsing errors, and command execution errors.
 
 ## Shell Support
 
-*   [x] Add support for `bash`.
-*   [ ] Add support for `zsh`.
-*   [ ] Add support for `fish`.
-*   [ ] Add support for other popular shells.
+*   [ ] Add support for `bash` aliases.
+*   [ ] Add support for `zsh` aliases.
+*   [ ] Add support for `fish` aliases.
 
 ## Improvements
 
 *   [ ] Implement a command to manually trigger a re-scan of alias files.
-*   [ ] Add a command to list all the aliases that have been loaded by the extension.
+*   [ ] Add a command to list all the loaded aliases.
 *   [ ] Add support for sourcing external files from within shell configuration files.
 *   [ ] Watch for changes in alias files and automatically reload them.
 
