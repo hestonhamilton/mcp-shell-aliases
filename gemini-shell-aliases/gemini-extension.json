@@ -1,4 +1,16 @@
 {
-  "name": "custom-commands",
-  "version": "1.0.0"
+  "name": "shell-aliases",
+  "version": "0.1.0",
+  "description": "Exposes shell aliases to Gemini CLI.",
+  "author": "Your Name",
+  "license": "MIT",
+  "mcp_server": {
+    "command": ["node", "${extensionPath}/dist/index.js"]
+  },
+  "configuration": {
+    "aliasFiles": [
+      "./.bashrc",
+      "./.bash_aliases"
+    ]
+  }
 }

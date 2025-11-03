@@ -1,0 +1,17 @@
+{
+  "name": "shell-aliases-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for Gemini Shell Aliases Extension",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^5.0.0"
+  }
+}
