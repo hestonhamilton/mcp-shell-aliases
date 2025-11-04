@@ -1,0 +1,27 @@
+# Default configuration for the MCP Bash Aliases server.
+alias_files: []
+allow_patterns:
+  - '^ls\b'
+  - '^cat\b'
+  - '^git\b(?!\s+(push|reset|rebase|clean))'
+  - '^grep\b'
+  - '^rg\b'
+deny_patterns:
+  - '^rm\b'
+  - '^dd\b'
+  - '^shutdown\b'
+  - '^reboot\b'
+  - '^sudo\b'
+default_cwd: '~'
+allow_cwd_roots:
+  - '~'
+audit_log_path: '~/.local/state/mcp-bash-aliases/audit.log'
+execution:
+  max_stdout_bytes: 10000
+  max_stderr_bytes: 10000
+  default_timeout_seconds: 20
+enable_hot_reload: true
+transport: stdio
+http_host: '127.0.0.1'
+http_port: 3921
+http_path: '/mcp'

@@ -1,3 +1,10 @@
 .bashrc
 .bash_aliases
 */node_modules/*
+.venv/
+.pytest_cache/
+__pycache__/
+.coverage
+tmp_test_dir*/
+*.pyc
+*.log

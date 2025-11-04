@@ -6,26 +6,17 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 0) Project Setup
 
-- [ ] **Pick language & SDK**
-  - TypeScript: `@modelcontextprotocol/sdk` (Node ≥ 18)
-  - Python: FastMCP or official Python SDK
-- [ ] **Initialize repo**
-  - TS:
-    ```bash
-    mkdir mcp-bash-aliases && cd $_
-    npm init -y
-    npm i @modelcontextprotocol/sdk
-    npm i -D typescript ts-node @types/node eslint vitest
-    npx tsc --init
-    ```
+- [x] **Pick language & SDK**
+  - Python: FastMCP
+- [x] **Initialize repo**
   - Py:
     ```bash
     mkdir mcp-bash-aliases && cd $_
     uv venv || python -m venv .venv
     source .venv/bin/activate
-    pip install fastmcp pytest ruff
+    pip install -r requirements.txt
     ```
-- [ ] **Repo hygiene**
+- [x] **Repo hygiene**
   - Add `.editorconfig`, `.gitignore`, `LICENSE`, `CONTRIBUTING.md`.
   - Set `package.json` or `pyproject.toml` scripts for `build`, `start:stdio`, `test`, `lint`.
 
@@ -33,16 +24,16 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 1) Requirements & Threat Model
 
-- [ ] **Functional goals**
+- [x] **Functional goals** (prompts deferred to later milestone)
   - Parse and catalog shell aliases from explicit files (e.g., `~/.bash_aliases`, `~/.bashrc`, `/etc/bash.bashrc`).
   - Expose:
     - **Tools**: execute a chosen alias with optional args (default to dry-run).
     - **Resources**: `alias://catalog` (JSON list) and `alias://{name}` (details).
     - **Prompts** (optional): “suggest” and “confirm” flows.
-- [ ] **Non-functional goals**
+- [x] **Non-functional goals**
   - Safety by default (allowlist, dry-run, timeouts, env scrub, audit logs).
   - Deterministic behavior across hosts (stdio transport).
-- [ ] **Threat model**
+- [x] **Threat model**
   - Prevent destructive commands.
   - Avoid leaking secrets via environment or output.
   - Constrain execution context (PATH, CWD, time, output size).
@@ -51,7 +42,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 2) Data Model & Config
 
-- [ ] **Alias object**
+- [x] **Alias object**
   ```ts
   type Alias = {
     name: string
@@ -60,7 +51,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
     sourceFile: string      // provenance
   }
   ```
-- [ ] **Config file** `config.yaml` (or JSON/TOML)
+- [x] **Config file** `config.yaml` (or JSON/TOML)
   - `aliasFiles`: list of absolute paths to parse.
   - `allowPatterns`: regex list that marks expansions as “safe”.
   - `denyPatterns`: regex list for hard blocks.
@@ -69,44 +60,44 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - `defaultTimeoutSeconds` (e.g., 20).
   - `auditLogPath` (e.g., `~/.local/state/mcp-bash-aliases/audit.log`).
   - `enableHotReload: true|false`.
-- [ ] **Load config with precedence**
+- [x] **Load config with precedence**
   1. CLI flags → 2. Env vars → 3. Project config file → 4. Built-in defaults.
 
 ---
 
 ## 3) Alias Discovery & Parsing
 
-- [ ] **Implement parser**
+- [x] **Implement parser**
   - Parse only **explicitly configured** files.
   - Regex for aliases: `^alias\s+([A-Za-z0-9_\-]+)='([^']+)'$` (and support double quotes).
   - Record `sourceFile` for each alias; later used for debugging.
-- [ ] **Deduplication & conflicts**
+- [x] **Deduplication & conflicts**
   - Later files override earlier ones or log a warning; document the policy.
-- [ ] **Sanitization**
+- [x] **Sanitization**
   - Trim whitespace; reject names with spaces or shell metacharacters.
-- [ ] **Allowlist/denylist computation**
+- [x] **Allowlist/denylist computation**
   - `safe = matches(allowPatterns) && !matches(denyPatterns)`.
 
 ---
 
 ## 4) Execution Sandbox & Safety Rails
 
-- [ ] **Dry-run by default**
+- [x] **Dry-run by default**
   - Tools execute in simulation unless `dryRun: false && confirm: true`.
-- [ ] **Allowlist enforcement**
+- [x] **Allowlist enforcement**
   - If `safe === false`, permit **only** dry-run; return an error if execution requested.
-- [ ] **Command construction**
+- [x] **Command construction**
   - Build final command as: `<expansion> <args>`; do **not** re-quote user args internally.
   - Execute with `/bin/bash -lc "<cmd>"` to resolve aliases/functions consistently.
-- [ ] **Environment scrubbing**
+- [x] **Environment scrubbing**
   - Minimal `PATH` (e.g., `/usr/bin:/bin`).
   - Drop all non-essential env vars; optionally pass through `LANG`, `LC_*`, `HOME`.
-- [ ] **Working directory**
+- [x] **Working directory**
   - If `cwd` provided, require it to be within an allowlisted root (e.g., `$HOME`); else use default.
-- [ ] **Timeouts & truncation**
+- [x] **Timeouts & truncation**
   - Kill process after `timeoutSeconds`.
   - Truncate `stdout`/`stderr` to configured byte limits.
-- [ ] **Return structure**
+- [x] **Return structure**
   ```json
   {
     "command": "git status",
@@ -117,7 +108,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
     "timedOut": false
   }
   ```
-- [ ] **Audit logging**
+- [x] **Audit logging**
   - Append JSON lines: timestamp, alias, args, cwd, exitCode, timedOut.
   - Redact obvious secrets by pattern (tokens, keys) before writing.
 
@@ -125,23 +116,27 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 5) MCP Server: Capabilities & Transport
 
-- [ ] **Server metadata**
+- [x] **Server metadata**
   - Name: `bash-aliases`
   - Version: semantic versioning starting at `0.1.0`.
-- [ ] **Capabilities**
+- [x] **Capabilities**
   - `tools`: enabled
   - `resources`: enabled
   - `prompts`: optional
-- [ ] **Transport**
+- [x] **Transport**
   - Implement **stdio** transport for maximum host compatibility.
-- [ ] **Graceful shutdown**
+- [x] **Graceful shutdown**
   - Handle SIGINT/SIGTERM; flush audit logs.
+- [x] **HTTP/SSE transport option**
+  - Configurable `transport` option (`stdio`, `http`, `sse`).
+  - Allow binding host/port/path for local agent integration (Codex, Gemini CLI).
+  - Document config snippets for stdio vs. HTTP transports.
 
 ---
 
 ## 6) Tools
 
-- [ ] **Single generic tool** `alias.exec`
+- [x] **Single generic tool** `alias.exec`
   - **Schema**
     - `name: string` (alias name)
     - `args: string` (optional)
@@ -161,10 +156,10 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 7) Resources (Browseable Catalog)
 
-- [ ] **`alias://catalog`**
+- [x] **`alias://catalog`**
   - MIME: `application/json`
   - Body: array of `{ name, expansion, safe, sourceFile }`.
-- [ ] **`alias://{name}`**
+- [x] **`alias://{name}`**
   - MIME: `text/plain` (or JSON)
   - Body: details + example invocation:
     ```
@@ -202,7 +197,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 10) Testing
 
-- [ ] **Unit tests**
+- [x] **Unit tests**
   - Parsing (single/double quotes, comments, whitespace).
   - Allowlist/denylist rules (positive/negative cases).
   - Path and env validation.
@@ -222,7 +217,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 11) Linting, Formatting, CI
 
-- [ ] Configure ESLint/ruff and formatter (Prettier/black).
+- [x] Configure ESLint/ruff and formatter (Prettier/black).
 - [ ] CI workflow:
   - Lint → Unit tests → Integration tests.
   - Cache Node/pip dependencies.
@@ -236,7 +231,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - Bundle with `tsc` to `dist/`.
   - Add `"bin": { "mcp-bash-aliases": "dist/server.js" }` in `package.json`.
   - Optional: publish to npm.
-- [ ] **Python**
+- [x] **Python**
   - Define console entry point `mcp-bash-aliases` in `pyproject.toml`.
   - Optional: publish to PyPI.
 - [ ] **Versioning**
@@ -272,16 +267,16 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 ## 15) Documentation
 
-- [ ] **README**
+- [x] **README**
   - Overview, quick start (Node/Python), config reference, safety model.
   - Examples of tool calls and resource reads.
-- [ ] **SECURITY.md**
+- [x] **SECURITY.md**
   - Threat model, guarantees, non-goals, reporting process.
-- [ ] **CONFIGURATION.md**
+- [x] **CONFIGURATION.md**
   - All settings with defaults; allow/deny examples.
-- [ ] **TROUBLESHOOTING.md**
+- [x] **TROUBLESHOOTING.md**
   - Common errors (no aliases parsed, permission issues, timeouts).
-- [ ] **EXAMPLES/**
+- [x] **EXAMPLES/**
   - Example alias files, example host configs.
 
 ---
@@ -291,11 +286,11 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [ ] **Function support (optional)**
   - Detect `name () { ... }` blocks behind a **separate** opt-in allowlist.
   - Require dry-run; mark unsafe by default.
-- [ ] **CWD policy**
+- [x] **CWD policy**
   - Allow only `$HOME` and subdirectories by default; configurable.
-- [ ] **Command policy**
+- [x] **Command policy**
   - Explicit denylist for destructive verbs (`rm`, `mv` to `/`, `dd`, `mkfs`, `sudo`, package managers, `reboot`).
-- [ ] **User messaging**
+- [x] **User messaging**
   - Clear error messages with remediation hints (e.g., “Run in dryRun or add regex to allowPatterns.”).
 
 ---

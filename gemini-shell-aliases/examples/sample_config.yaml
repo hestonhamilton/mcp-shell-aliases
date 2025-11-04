@@ -1,0 +1,24 @@
+alias_files:
+  - ~/.bash_aliases
+  - ~/.bashrc
+allow_patterns:
+  - '^ls\\b'
+  - '^cat\\b'
+  - '^git\\b(?!\\s+(push|reset|rebase|clean))'
+  - '^grep\\b'
+  - '^rg\\b'
+deny_patterns:
+  - '^rm\\b'
+  - '^dd\\b'
+  - '^shutdown\\b'
+  - '^reboot\\b'
+  - '^sudo\\b'
+default_cwd: '~'
+execution:
+  default_timeout_seconds: 20
+  max_stdout_bytes: 10000
+  max_stderr_bytes: 10000
+audit_log_path: '~/.local/state/mcp-bash-aliases/audit.log'
+enable_hot_reload: true
+allow_cwd_roots:
+  - '~'
