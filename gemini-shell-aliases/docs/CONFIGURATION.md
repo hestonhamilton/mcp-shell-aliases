@@ -168,6 +168,7 @@ For manual configuration, you can create or edit `.gemini/settings.json` in your
 {
   "mcpServers": [
     {
+      "name": "mcp-bash-aliases",
       "command": ["python", "-m", "mcp_bash_aliases"],
       "args": ["--config", "/path/to/your/config.yaml"]
     }
@@ -183,6 +184,7 @@ Replace the `command` and `args` with the correct path to your python executable
 {
   "mcpServers": [
     {
+      "name": "mcp-bash-aliases",
       "httpUrl": "http://127.0.0.1:3921/mcp"
     }
   ]
