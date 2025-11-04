@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass
 from typing import Iterable, List, Pattern
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -17,8 +21,8 @@ class SafetyClassifier:
     @classmethod
     def from_strings(cls, allow_patterns: Iterable[str], deny_patterns: Iterable[str]) -> "SafetyClassifier":
         return cls(
-            allow_patterns=[re.compile(_normalize_regex(pattern)) for pattern in allow_patterns],
-            deny_patterns=[re.compile(_normalize_regex(pattern)) for pattern in deny_patterns],
+            allow_patterns=_compile_patterns(allow_patterns),
+            deny_patterns=_compile_patterns(deny_patterns),
         )
 
     def is_safe(self, expansion: str) -> bool:
@@ -39,3 +43,14 @@ def _normalize_regex(pattern: str) -> str:
         return pattern.encode("utf-8").decode("unicode_escape")
     except UnicodeDecodeError:
         return pattern
+
+
+def _compile_patterns(patterns: Iterable[str]) -> List[Pattern[str]]:
+    compiled: List[Pattern[str]] = []
+    for raw in patterns:
+        normalized = _normalize_regex(raw)
+        try:
+            compiled.append(re.compile(normalized))
+        except re.error:
+            logger.warning("Skipping invalid regex pattern '%s'", raw)
+    return compiled

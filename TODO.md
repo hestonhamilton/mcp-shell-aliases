@@ -7,23 +7,14 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 ## 0) Project Setup
 
 - [x] **Pick language & SDK**
-  - TypeScript: `@modelcontextprotocol/sdk` (Node ≥ 18)
-  - Python: FastMCP or official Python SDK
+  - Python: FastMCP
 - [x] **Initialize repo**
-  - TS:
-    ```bash
-    mkdir mcp-bash-aliases && cd $_
-    npm init -y
-    npm i @modelcontextprotocol/sdk
-    npm i -D typescript ts-node @types/node eslint vitest
-    npx tsc --init
-    ```
   - Py:
     ```bash
     mkdir mcp-bash-aliases && cd $_
     uv venv || python -m venv .venv
     source .venv/bin/activate
-    pip install fastmcp pytest ruff
+    pip install -r requirements.txt
     ```
 - [x] **Repo hygiene**
   - Add `.editorconfig`, `.gitignore`, `LICENSE`, `CONTRIBUTING.md`.

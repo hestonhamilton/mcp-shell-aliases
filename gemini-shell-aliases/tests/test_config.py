@@ -42,3 +42,40 @@ def test_invalid_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(ConfigError):
         Config.load()
 
+
+def test_cli_overrides_precedence(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text(
+        """
+        execution:
+          max_stdout_bytes: 4096
+        """,
+        encoding="utf-8",
+    )
+
+    overrides = {"execution": {"max_stdout_bytes": 2048}, "default_cwd": str(tmp_path)}
+    config = Config.load(config_path=config_path, cli_overrides=overrides)
+
+    assert config.execution.max_stdout_bytes == 2048
+    assert config.execution.max_stderr_bytes == 10_000  # untouched default
+    assert config.default_cwd == tmp_path
+
+
+def test_json_config(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.json"
+    config_path.write_text('{"alias_files": ["/tmp/test_aliases"]}', encoding="utf-8")
+
+    config = Config.load(config_path=config_path)
+    assert config.alias_files == [Path("/tmp/test_aliases")]
+
+
+def test_allow_cwd_roots_fallback(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("MCP_BASH_ALIASES_ALLOW_CWD_ROOTS", "")
+    config = Config.load(cwd=tmp_path)
+    assert config.allow_cwd_roots == [config.default_cwd]
+
+
+def test_enable_hot_reload_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("MCP_BASH_ALIASES_ENABLE_HOT_RELOAD", "false")
+    config = Config.load(cwd=tmp_path)
+    assert config.enable_hot_reload is False

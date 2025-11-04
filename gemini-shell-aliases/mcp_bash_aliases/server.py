@@ -7,18 +7,11 @@ import logging
 import signal
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from types import FrameType
+from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
-
-try:  # pragma: no cover - optional API
-    from fastmcp import Resource, ToolError
-except ImportError:  # pragma: no cover - fallback for older fastmcp versions
-    Resource = None  # type: ignore[assignment]
-
-    class ToolError(RuntimeError):  # type: ignore[no-redef]
-        """Fallback ToolError for environments with older fastmcp."""
-
+from fastmcp.exceptions import ToolError
 
 from . import __version__
 from .aliases import Alias, AliasCatalog, build_catalog
@@ -66,8 +59,8 @@ def create_app(config: Config) -> FastMCP:
     runtime = AliasRuntime.build(config)
     server = FastMCP(
         "bash-aliases",
+        instructions="Expose vetted shell aliases as safe MCP tools.",
         version=__version__,
-        description="Expose vetted shell aliases as safe MCP tools.",
     )
 
     def example_for_alias(alias: Alias) -> str:
@@ -75,6 +68,15 @@ def create_app(config: Config) -> FastMCP:
         if alias.safe:
             return base
         return f'{base}  # unsafe aliases only support dry runs'
+
+    def alias_to_payload(alias: Alias) -> Dict[str, Any]:
+        return {
+            "name": alias.name,
+            "expansion": alias.expansion,
+            "safe": alias.safe,
+            "sourceFile": str(alias.source_file),
+            "example": example_for_alias(alias),
+        }
 
     @server.tool(name="alias.exec", description="Execute or dry-run a configured shell alias.")
     async def alias_exec(
@@ -84,7 +86,7 @@ def create_app(config: Config) -> FastMCP:
         confirm: bool = False,
         cwd: Optional[str] = None,
         timeout_seconds: Optional[int] = None,
-    ) -> dict:
+    ) -> Dict[str, Any]:
         if not dry_run and not confirm:
             raise ToolError("Execution requires confirm=true; dry_run is enabled otherwise.")
 
@@ -136,63 +138,27 @@ def create_app(config: Config) -> FastMCP:
         return payload
 
     @server.tool(name="alias.catalog", description="Return catalog metadata for all aliases.")
-    async def alias_catalog_tool() -> dict:
+    async def alias_catalog_tool() -> Dict[str, List[Dict[str, Any]]]:
         aliases = runtime.list_aliases()
         return {
-            "aliases": [
-                {
-                    "name": alias.name,
-                    "expansion": alias.expansion,
-                    "safe": alias.safe,
-                    "sourceFile": str(alias.source_file),
-                    "example": example_for_alias(alias),
-                }
-                for alias in aliases
-            ]
+            "aliases": [alias_to_payload(alias) for alias in aliases],
         }
 
-    if Resource is not None:
+    @server.resource("alias://catalog", description="JSON catalog of available aliases.", mime_type="application/json")
+    async def alias_catalog_resource() -> str:
+        aliases = runtime.list_aliases()
+        body = json.dumps([alias_to_payload(alias) for alias in aliases], indent=2)
+        return body
 
-        @server.resource("alias://catalog", description="JSON catalog of available aliases.")
-        async def alias_catalog_resource():  # type: ignore[no-redef]
-            aliases = runtime.list_aliases()
-            body = json.dumps(
-                [
-                    {
-                        "name": alias.name,
-                        "expansion": alias.expansion,
-                        "safe": alias.safe,
-                        "sourceFile": str(alias.source_file),
-                        "example": example_for_alias(alias),
-                    }
-                    for alias in aliases
-                ],
-                indent=2,
-            )
-            return Resource(mime_type="application/json", content=body)
+    @server.resource("alias://{alias_name}", mime_type="application/json")
+    async def alias_detail_resource(alias_name: str) -> str:
+        try:
+            alias = runtime.get_alias(alias_name)
+        except AliasNotFoundError as exc:
+            raise ToolError(str(exc)) from exc
 
-        @server.resource(prefix="alias://")  # type: ignore[misc]
-        async def alias_detail_resource(uri: str):  # type: ignore[no-redef]
-            if uri == "alias://catalog":
-                return await alias_catalog_resource()
-
-            name = uri[len("alias://") :]
-            try:
-                alias = runtime.get_alias(name)
-            except AliasNotFoundError as exc:
-                raise ToolError(str(exc)) from exc
-
-            body = json.dumps(
-                {
-                    "name": alias.name,
-                    "expansion": alias.expansion,
-                    "safe": alias.safe,
-                    "sourceFile": str(alias.source_file),
-                    "example": example_for_alias(alias),
-                },
-                indent=2,
-            )
-            return Resource(mime_type="application/json", content=body)
+        body = json.dumps(alias_to_payload(alias), indent=2)
+        return body
 
     return server
 
@@ -200,7 +166,7 @@ def create_app(config: Config) -> FastMCP:
 def run(config: Config) -> None:
     server = create_app(config)
     # Install basic signal handlers so we can log clean shutdown intent.
-    def _handle_signal(signum: int, _frame) -> None:  # pragma: no cover - dependent on signal delivery
+    def _handle_signal(signum: int, _frame: FrameType | None) -> None:  # pragma: no cover - dependent on signal delivery
         logger.info("Received signal %s; shutting down.", signum)
         raise KeyboardInterrupt
 

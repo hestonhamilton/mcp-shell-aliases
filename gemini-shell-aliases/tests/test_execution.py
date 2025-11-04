@@ -99,3 +99,85 @@ async def test_audit_log_preserves_args_string(tmp_path: Path) -> None:
 
     log_text = config.audit_log_path.read_text(encoding="utf-8")
     assert '"args":"world"' in log_text
+
+
+@pytest.mark.asyncio
+async def test_execute_times_out(tmp_path: Path) -> None:
+    alias = Alias(
+        name="slow",
+        expansion="python3 -c 'import time; time.sleep(2)'",
+        safe=True,
+        source_file=tmp_path / "aliases",
+    )
+    config = Config(
+        alias_files=[],
+        allow_patterns=[r"^python3"],
+        deny_patterns=[r"^false"],
+        default_cwd=tmp_path,
+        audit_log_path=tmp_path / "audit.log",
+        enable_hot_reload=False,
+        execution=ExecutionLimits(max_stdout_bytes=1000, max_stderr_bytes=1000, default_timeout_seconds=5),
+        allow_cwd_roots=[tmp_path],
+    )
+
+    result = await execute_alias(
+        alias,
+        args=None,
+        config=config,
+        dry_run=False,
+        requested_cwd=None,
+        timeout_override=1,
+    )
+
+    assert result.timed_out is True
+    assert result.exit_code is None
+
+
+@pytest.mark.asyncio
+async def test_execute_with_iterable_args(tmp_path: Path) -> None:
+    alias = Alias(
+        name="say",
+        expansion="echo",
+        safe=True,
+        source_file=tmp_path / "aliases",
+    )
+    config = make_config(tmp_path)
+
+    result = await execute_alias(
+        alias,
+        args=["hello", "world"],
+        config=config,
+        dry_run=False,
+        requested_cwd=None,
+        timeout_override=None,
+    )
+
+    assert result.exit_code == 0
+    assert result.command.endswith("hello world")
+    assert "hello world" in result.stdout
+
+
+@pytest.mark.asyncio
+async def test_audit_log_serializes_iterable_args(tmp_path: Path) -> None:
+    alias = Alias(name="greet", expansion="echo hello", safe=True, source_file=tmp_path / "aliases")
+    config = make_config(tmp_path)
+
+    result = await execute_alias(
+        alias,
+        args=["earth"],
+        config=config,
+        dry_run=True,
+        requested_cwd=None,
+        timeout_override=None,
+    )
+
+    write_audit_log(
+        config=config,
+        alias=alias,
+        args=["earth"],
+        cwd=result.cwd,
+        result=result,
+    )
+
+    log_text = config.audit_log_path.read_text(encoding="utf-8")
+    assert '"args":"earth"' in log_text

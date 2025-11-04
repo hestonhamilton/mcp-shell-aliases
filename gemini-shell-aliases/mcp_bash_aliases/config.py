@@ -181,8 +181,9 @@ def _parse_env_value(target: str, raw: str) -> Any:
 
 def _merge_dict(target: Dict[str, Any], source: Mapping[str, Any]) -> None:
     for key, value in source.items():
-        if isinstance(value, Mapping) and isinstance(target.get(key), Mapping):
-            _merge_dict(target[key], value)  # type: ignore[index]
+        existing = target.get(key)
+        if isinstance(value, Mapping) and isinstance(existing, dict):
+            _merge_dict(existing, value)
         else:
             target[key] = value
 
@@ -191,9 +192,13 @@ def _apply_override(target: Dict[str, Any], dotted_key: str, value: Any) -> None
     parts = dotted_key.split(".")
     current: Dict[str, Any] = target
     for part in parts[:-1]:
-        current = current.setdefault(part, {})  # type: ignore[assignment]
-        if not isinstance(current, dict):
+        next_value = current.get(part)
+        if next_value is None:
+            next_value = {}
+            current[part] = next_value
+        elif not isinstance(next_value, dict):
             raise ConfigError(f"Cannot override nested key {dotted_key}")
+        current = next_value
     current[parts[-1]] = value
 
 
