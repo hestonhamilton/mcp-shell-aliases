@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
+from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, Tuple
 
 import yaml
 
@@ -58,8 +58,9 @@ class Config:
 
         raw_config = _default_dict()
 
-        file_config = _load_from_file(config_path=config_path, base_dir=base_dir)
+        file_config, resolved_config_path = _load_from_file(config_path=config_path, base_dir=base_dir)
         _merge_dict(raw_config, file_config)
+        config_dir = resolved_config_path.parent if resolved_config_path is not None else base_dir
 
         env_config = _load_from_env(env if env is not None else os.environ)
         for dotted_key, value in env_config.items():
@@ -69,7 +70,7 @@ class Config:
             for key, value in cli_overrides.items():
                 _apply_override(raw_config, key, value)
 
-        return _build_config(raw_config)
+        return _build_config(raw_config, config_dir=config_dir.resolve())
 
 
 def _default_dict() -> Dict[str, Any]:
@@ -105,8 +106,9 @@ def _default_dict() -> Dict[str, Any]:
     }
 
 
-def _load_from_file(*, config_path: Optional[Path], base_dir: Path) -> Dict[str, Any]:
+def _load_from_file(*, config_path: Optional[Path], base_dir: Path) -> Tuple[Dict[str, Any], Optional[Path]]:
     candidate_paths: Iterable[Path]
+    explicit = config_path is not None
     if config_path:
         candidate_paths = (config_path,)
     else:
@@ -117,11 +119,16 @@ def _load_from_file(*, config_path: Optional[Path], base_dir: Path) -> Dict[str,
         if not expanded.exists():
             continue
         try:
-            return _read_config_file(expanded)
+            absolute = expanded.resolve()
+            return _read_config_file(expanded), absolute
         except Exception as exc:  # pragma: no cover - sanity guard
             raise ConfigError(f"Failed to read config file {expanded}") from exc
 
-    return {}
+    if explicit:
+        missing = config_path.expanduser()
+        raise ConfigError(f"Config file {missing} not found")
+
+    return {}, None
 
 
 def _read_config_file(path: Path) -> Dict[str, Any]:
@@ -221,8 +228,17 @@ def _apply_override(target: Dict[str, Any], dotted_key: str, value: Any) -> None
     current[parts[-1]] = value
 
 
-def _build_config(raw: Dict[str, Any]) -> Config:
-    alias_files = [Path(p).expanduser() for p in raw.get("alias_files", [])]
+def _resolve_path(value: str, *, base_dir: Path) -> Path:
+    expanded = Path(value).expanduser()
+    candidate = expanded if expanded.is_absolute() else base_dir / expanded
+    try:
+        return candidate.resolve(strict=False)
+    except OSError:
+        return candidate
+
+
+def _build_config(raw: Dict[str, Any], *, config_dir: Path) -> Config:
+    alias_files = [_resolve_path(p, base_dir=config_dir) for p in raw.get("alias_files", [])]
     default_cwd = Path(raw.get("default_cwd", "~")).expanduser()
     audit_log_path = Path(raw.get("audit_log_path", "~/.local/state/mcp-bash-aliases/audit.log")).expanduser()
     allow_cwd_roots = [Path(p).expanduser() for p in raw.get("allow_cwd_roots", [])]

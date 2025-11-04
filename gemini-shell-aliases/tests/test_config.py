@@ -93,10 +93,53 @@ def test_json_config(tmp_path: Path) -> None:
     assert config.http_path == "/mcp"
 
 
+def test_alias_files_resolve_relative_to_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    alias_dir = tmp_path / "aliases"
+    alias_dir.mkdir()
+    alias_file = alias_dir / "aliases"
+    alias_file.write_text("alias hi='echo hi'\n", encoding="utf-8")
+
+    config_path = config_dir / "config.yaml"
+    config_path.write_text(
+        "alias_files:\n  - ../aliases/aliases\n",
+        encoding="utf-8",
+    )
+
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+
+    config = Config.load(config_path=config_path)
+
+    assert config.alias_files == [alias_file]
+
+
+def test_alias_files_expand_user(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    alias_file = home / ".bash_aliases"
+    alias_file.write_text("alias hi='echo hi'\n", encoding="utf-8")
+
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("alias_files:\n  - '~/.bash_aliases'\n", encoding="utf-8")
+
+    config = Config.load(config_path=config_path)
+
+    assert config.alias_files == [alias_file]
+
+
 def test_allow_cwd_roots_fallback(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.setenv("MCP_BASH_ALIASES_ALLOW_CWD_ROOTS", "")
     config = Config.load(cwd=tmp_path)
     assert config.allow_cwd_roots == [config.default_cwd]
+
+
+def test_missing_explicit_config_raises(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError):
+        Config.load(config_path=tmp_path / "missing.yaml")
 
 
 def test_enable_hot_reload_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

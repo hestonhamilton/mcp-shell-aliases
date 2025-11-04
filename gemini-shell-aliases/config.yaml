@@ -1,5 +1,6 @@
 # Default configuration for the MCP Bash Aliases server.
-alias_files: []
+alias_files:
+  - '~/.bash_aliases'
 allow_patterns:
   - '^ls\b'
   - '^cat\b'
