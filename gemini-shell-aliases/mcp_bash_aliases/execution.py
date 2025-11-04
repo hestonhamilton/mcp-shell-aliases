@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Alias execution helpers with safety guard rails."""
+
+from __future__ import annotations
 
 import asyncio
 import json

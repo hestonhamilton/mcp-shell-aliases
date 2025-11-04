@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """FastMCP server exposing shell aliases as tools and resources."""
+
+from __future__ import annotations
 
 import json
 import logging

@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Command-line entry point for the MCP Bash Aliases server."""
+
+from __future__ import annotations
 
 import argparse
 import logging
@@ -128,4 +128,3 @@ def main(argv: Optional[List[str]] = None) -> None:
 
 if __name__ == "__main__":
     main()
-

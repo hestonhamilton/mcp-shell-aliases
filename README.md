@@ -66,6 +66,31 @@ Update your MCP host configuration to use the new server, for example in `gemini
 
 Verify by listing the `alias.catalog` tool, reading the `alias://catalog` resource, and executing a safe alias with `dry_run`.
 
+## Project Status
+
+- ✅ Python/FastMCP implementation exposes `alias.exec` and browseable resources.
+- ✅ Safety rails enforced: dry-run default, allow/deny patterns, timeouts, cwd policy, audit logs.
+- ✅ Hot reload is available via on-demand catalog refresh (no file watcher yet).
+- 🚧 Prompt helpers, inotify-style hot reload, and advanced hardening are still on the roadmap (see `TODO.md`).
+
+## Testing & Quality
+
+```bash
+# lint
+ruff check mcp_bash_aliases tests
+
+# unit tests (current suite: parser, safety, execution)
+pytest
+
+# coverage (target ≥90% per Testing.md; current focus is expanding to contract/E2E layers)
+pytest --cov=mcp_bash_aliases --cov-report=term-missing
+
+# type checking (requires stub package: python -m pip install types-PyYAML)
+mypy mcp_bash_aliases
+```
+
+The existing tests cover core parsing, safety classification, and execution guard rails. Contract/E2E smoke tests and additional coverage work are tracked in `docs/Testing.md` and `TODO.md`.
+
 ## Tool Usage Example
 
 ```json

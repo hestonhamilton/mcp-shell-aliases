@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mcp_bash_aliases.aliases import AliasCatalog, build_catalog
+from mcp_bash_aliases.aliases import build_catalog
 from mcp_bash_aliases.safety import SafetyClassifier
 
 
@@ -42,4 +42,3 @@ def test_prioritises_last_definition(tmp_path: Path) -> None:
     assert alias is not None
     assert alias.expansion == "ls -a"
     assert alias.source_file == second
-

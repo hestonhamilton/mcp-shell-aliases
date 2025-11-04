@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Safety classification helpers."""
+
+from __future__ import annotations
 
 import re
 from dataclasses import dataclass

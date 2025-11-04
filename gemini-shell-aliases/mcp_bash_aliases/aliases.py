@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Alias parsing and catalog management."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
