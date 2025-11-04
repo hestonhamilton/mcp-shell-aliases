@@ -9,6 +9,7 @@
 
 - Check the catalog: the alias might be marked `safe: false`. Update `allow_patterns` or enable dry-run.
 - Calls must include `dry_run=false` **and** `confirm=true` to execute.
+- A `ToolError` mentioning "Alias is not marked safe" indicates the denylist matched; run in dry-run mode or adjust the allowlist with care.
 
 ## `cwd` rejected
 
@@ -21,4 +22,14 @@
 ## Timeouts
 
 - Increase `default_timeout_seconds` or pass `timeout_seconds` in the tool call for long-running aliases.
+- The `timeout_seconds` argument must be positive and no more than 5× the configured default. Values outside the range return a `ToolError`.
 
+## Unknown alias or resource
+
+- `ToolError: Alias 'xyz' is not defined` means the alias was not parsed from any configured file. Refresh `alias://catalog` to confirm.
+- `Unknown resource: alias://name` indicates the resource template path is wrong; use `alias://{alias_name}` syntax.
+
+## Still stuck?
+
+- Run the automated tests (`docs/Testing.md`) to catch regressions.
+- Use `--verbose` logging to see which config values are loaded at runtime.

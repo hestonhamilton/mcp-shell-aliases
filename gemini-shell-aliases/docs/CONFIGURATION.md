@@ -7,7 +7,9 @@ The MCP Bash Aliases server is configured via a YAML file (default `config.yaml`
 - `alias_files` (`list[str]`, default: `[]`)
   Explicit alias files to parse. Files are read in order; later files override earlier definitions.
 - `allow_patterns` (`list[str]`)
-  Regex patterns that mark alias expansions as safe for execution.
+  Regex patterns that mark alias expansions as safe for execution. Patterns are
+  decoded with Python's escape sequences, so `"^ls\\b"` and `"^ls\b"` are treated
+  the same.
 - `deny_patterns` (`list[str]`)
   Regex patterns that block execution regardless of allow rules.
 - `default_cwd` (`str`, default: `~`)
@@ -40,6 +42,10 @@ Environment variable overrides use uppercase keys. Examples:
 - `MCP_BASH_ALIASES_ALIAS_FILES="~/.bash_aliases:~/.bashrc"`
 - `MCP_BASH_ALIASES_ENABLE_HOT_RELOAD=false`
 - `MCP_BASH_ALIASES_DEFAULT_TIMEOUT_SECONDS=10`
+- `MCP_BASH_ALIASES_ALLOW_CWD_ROOTS="~:~/projects"`
+
+List values are colon-delimited. If `ALLOW_CWD_ROOTS` is empty, the server falls
+back to `default_cwd`.
 
 List values are colon-delimited.
 
@@ -56,4 +62,3 @@ Selected overrides are available on the CLI:
 - `--max-stderr-bytes 2048`
 - `--timeout 15`
 - `--allow-cwd-root ~/projects`
-

@@ -17,8 +17,13 @@ The MCP Bash Aliases server is designed with conservative defaults to avoid dest
 - **Timeouts & truncation**: Output is truncated to configured byte limits and processes are killed after `default_timeout_seconds`.
 - **Audit logging**: Every invocation appends structured JSON lines with alias name, args, cwd, exit code, timeout flag, and dry-run status.
 - **Secret redaction**: Audit entries redact obvious secrets (values containing `token`, `secret`, or `password`).
+- **Automated enforcement tests**: Contract tests drive the public FastMCP client against the server to prove unsafe aliases raise `ToolError`, cwd rules apply, and resource payloads stay well formed.
 
 ## Reporting Issues
 
 If you discover a vulnerability, please open a private issue or contact the maintainers directly. Avoid disclosing sensitive details in public discussions until a fix is available.
 
+## Residual Risks
+
+- Prompt-based confirmation flows and hot-reload file watching are tracked in `TODO.md`.
+- If you allow long-running aliases, review and adjust `default_timeout_seconds` or per-call overrides to match your threat model.

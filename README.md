@@ -79,17 +79,16 @@ Verify by listing the `alias.catalog` tool, reading the `alias://catalog` resour
 # lint
 ruff check mcp_bash_aliases tests
 
-# unit tests (current suite: parser, safety, execution)
-pytest
-
-# coverage (target ≥90% per Testing.md; current focus is expanding to contract/E2E layers)
+# unit + contract suite (includes in-process MCP smoke tests)
 pytest --cov=mcp_bash_aliases --cov-report=term-missing
 
 # type checking (requires stub package: python -m pip install types-PyYAML)
 mypy mcp_bash_aliases
 ```
 
-The existing tests cover core parsing, safety classification, and execution guard rails. Contract/E2E smoke tests and additional coverage work are tracked in `docs/Testing.md` and `TODO.md`.
+The test suite exercises alias parsing, sandbox execution, CLI entry points, and
+the FastMCP server itself via the official Python client. See
+`docs/Testing.md` for the complete breakdown and troubleshooting tips.
 
 ## Tool Usage Example
 
