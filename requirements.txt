@@ -34,7 +34,7 @@ jsonschema-specifications==2025.9.1
 keyring==25.6.0
 markdown-it-py==4.0.0
 mcp==1.20.0
--e git+ssh://git@github.com/hestonhamilton/gemini-shell-aliases.git@4ef211b2f2ec55b2ff752e1e80b26381ec2c5221#egg=mcp_bash_aliases&subdirectory=gemini-shell-aliases
+-e git+ssh://git@github.com/hestonhamilton/gemini-shell-aliases.git@25898ecfa3c785c3d26f9697b60b2ba24243c844#egg=mcp_bash_aliases&subdirectory=gemini-shell-aliases
 mdurl==0.1.2
 more-itertools==10.8.0
 mypy==1.18.2
@@ -71,6 +71,7 @@ SecretStorage==3.4.0
 sniffio==1.3.1
 sse-starlette==3.0.3
 starlette==0.50.0
+types-PyYAML==6.0.12.20250915
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0

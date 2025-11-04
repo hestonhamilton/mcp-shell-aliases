@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import re
-
 import pytest
 
 from mcp_bash_aliases.safety import SafetyClassifier, _normalize_regex
