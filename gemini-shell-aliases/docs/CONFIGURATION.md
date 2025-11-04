@@ -135,11 +135,34 @@ You can connect the MCP Bash Aliases server to various AI assistants that suppor
 
 ### Gemini CLI
 
-The Gemini CLI can connect to MCP servers. Create or edit `.gemini/settings.json` in your project directory or `~/.gemini/settings.json` globally and add an `mcpServers` block.
+The Gemini CLI can connect to MCP servers. The easiest way to add a server is with the `gemini mcp add` command.
 
 #### Stdio Transport
 
-If you are running the server with `transport: stdio` (the default), you can connect to it with a `command`:
+If you are running the server with `transport: stdio` (the default), you can add it with the following command:
+
+```bash
+gemini mcp add mcp-bash-aliases python -m mcp_bash_aliases --config /path/to/your/config.yaml
+```
+
+This will add the server to your project's `.gemini/settings.json` file. Use the `--scope user` flag to add it to your global `~/.gemini/settings.json` file.
+
+#### HTTP Transport
+
+If you are running the server with `transport: http`, `streamable-http`, or `sse`, you can add it with the following command:
+
+```bash
+gemini mcp add mcp-bash-aliases http://127.0.0.1:3921/mcp
+```
+
+After adding the server, run `/mcp refresh` in the Gemini CLI to see the new tools.
+
+For manual configuration, you can create or edit `.gemini/settings.json` in your project directory or `~/.gemini/settings.json` globally and add an `mcpServers` block.
+
+<details>
+<summary>Manual Configuration Examples</summary>
+
+#### Stdio Transport
 
 ```json
 {
@@ -156,8 +179,6 @@ Replace the `command` and `args` with the correct path to your python executable
 
 #### HTTP Transport
 
-If you are running the server with `transport: http`, `streamable-http`, or `sse`, you can connect to it with a `url`:
-
 ```json
 {
   "mcpServers": [
@@ -168,7 +189,7 @@ If you are running the server with `transport: http`, `streamable-http`, or `sse
 }
 ```
 
-After editing `settings.json`, run `/mcp refresh` in the Gemini CLI to see the new tools.
+</details>
 
 ### OpenAI API
 
