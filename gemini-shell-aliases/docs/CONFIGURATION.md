@@ -29,6 +29,57 @@ The MCP Bash Aliases server is configured via a YAML file (default `config.yaml`
 - `http_path` (`str`, default: `/mcp`)
   URL path exposed when serving HTTP/SSE. A leading slash is added automatically.
 
+### Example `config.yaml`
+
+#### Stdio transport (default)
+
+```yaml
+alias_files:
+  - ~/.bash_aliases
+allow_patterns:
+  - '^ls\\b'
+  - '^git\\b(?!\\s+(push|reset|rebase|clean))'
+deny_patterns:
+  - '^rm\\b'
+default_cwd: '~'
+allow_cwd_roots:
+  - '~'
+audit_log_path: '~/.local/state/mcp-bash-aliases/audit.log'
+execution:
+  max_stdout_bytes: 10000
+  max_stderr_bytes: 10000
+  default_timeout_seconds: 20
+enable_hot_reload: true
+transport: stdio
+```
+
+#### HTTP transport for local agents
+
+```yaml
+alias_files:
+  - ~/.bash_aliases
+allow_patterns:
+  - '^ls\\b'
+  - '^rg\\b'
+deny_patterns:
+  - '^rm\\b'
+default_cwd: '~'
+allow_cwd_roots:
+  - '~'
+execution:
+  max_stdout_bytes: 15000
+  max_stderr_bytes: 15000
+  default_timeout_seconds: 20
+enable_hot_reload: false
+transport: http
+http_host: 127.0.0.1
+http_port: 3921
+http_path: /mcp
+```
+
+Set `transport` to `streamable-http` or `sse` if your host requires those
+variants. Hosts should point at `http://<http_host>:<http_port><http_path>`.
+
 ## Execution Limits
 
 ```
