@@ -25,6 +25,14 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
             "2048",
             "--allow-cwd-root",
             str(tmp_path / "workspace"),
+            "--transport",
+            "http",
+            "--http-host",
+            "0.0.0.0",
+            "--http-port",
+            "4321",
+            "--http-path",
+            "alt",
         ]
     )
 
@@ -36,6 +44,10 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
     assert overrides["enable_hot_reload"] is False
     assert overrides["execution"]["max_stdout_bytes"] == 2048
     assert overrides["allow_cwd_roots"] == [str(tmp_path / "workspace")]
+    assert overrides["transport"] == "http"
+    assert overrides["http_host"] == "0.0.0.0"
+    assert overrides["http_port"] == 4321
+    assert overrides["http_path"] == "alt"
 
 
 def test_main_invokes_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

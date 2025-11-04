@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import signal
@@ -177,11 +178,43 @@ def run(config: Config) -> None:
             pass
 
     try:
-        if hasattr(server, "run_stdio"):
-            server.run_stdio()
-        elif hasattr(server, "run"):
-            server.run()
+        transport = config.transport.lower()
+        if transport == "stdio":
+            if hasattr(server, "run_stdio"):
+                server.run_stdio()
+            else:
+                server.run()
+        elif transport == "http":
+            asyncio.run(
+                server.run_http_async(
+                    show_banner=False,
+                    transport="http",
+                    host=config.http_host,
+                    port=config.http_port,
+                    path=config.http_path,
+                )
+            )
+        elif transport == "streamable-http":
+            asyncio.run(
+                server.run_http_async(
+                    show_banner=False,
+                    transport="streamable-http",
+                    host=config.http_host,
+                    port=config.http_port,
+                    path=config.http_path,
+                )
+            )
+        elif transport == "sse":
+            asyncio.run(
+                server.run_http_async(
+                    show_banner=False,
+                    transport="sse",
+                    host=config.http_host,
+                    port=config.http_port,
+                    path=config.http_path,
+                )
+            )
         else:  # pragma: no cover - safety guard for unexpected fastmcp versions
-            raise RuntimeError("FastMCP server implementation missing run method")
+            raise RuntimeError(f"Unsupported transport '{config.transport}'")
     except KeyboardInterrupt:
         logger.info("Server stopped by user request.")

@@ -29,6 +29,13 @@
 - `ToolError: Alias 'xyz' is not defined` means the alias was not parsed from any configured file. Refresh `alias://catalog` to confirm.
 - `Unknown resource: alias://name` indicates the resource template path is wrong; use `alias://{alias_name}` syntax.
 
+## HTTP server not reachable
+
+- Ensure `transport` is set to `http`, `streamable-http`, or `sse` and that the
+  `http_host`/`http_port` pair matches the host configuration.
+- Ports below 1024 may require elevated privileges; choose a higher port such as
+  `3921` when running locally.
+
 ## Still stuck?
 
 - Run the automated tests (`docs/Testing.md`) to catch regressions.

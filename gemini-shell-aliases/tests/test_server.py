@@ -176,3 +176,65 @@ def test_run_prefers_stdio(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
 
     assert dummy.called_stdio is True
     assert captured_signals == [signal.SIGINT, signal.SIGTERM]
+
+
+def test_run_http_transport(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    class DummyServer:
+        def __init__(self) -> None:
+            self.called_kwargs: dict[str, object] | None = None
+
+        async def run_http_async(self, **kwargs) -> None:  # type: ignore[no-untyped-def]
+            self.called_kwargs = kwargs
+
+    dummy = DummyServer()
+
+    def fake_create_app(config: Config) -> DummyServer:  # type: ignore[override]
+        return dummy
+
+    captured_signals: list[int] = []
+
+    def fake_signal(sig: int, handler):  # type: ignore[no-untyped-def]
+        captured_signals.append(sig)
+
+    async_calls: dict[str, object] = {}
+
+    def fake_asyncio_run(coro):  # type: ignore[no-untyped-def]
+        import asyncio
+
+        loop = asyncio.new_event_loop()
+        try:
+            loop.run_until_complete(coro)
+        finally:
+            loop.close()
+        async_calls["called"] = True
+
+    monkeypatch.setattr("mcp_bash_aliases.server.create_app", fake_create_app)
+    monkeypatch.setattr("signal.signal", fake_signal)
+    monkeypatch.setattr("asyncio.run", fake_asyncio_run)
+
+    config = Config(
+        alias_files=[],
+        allow_patterns=[r"^echo"],
+        deny_patterns=[r"^rm"],
+        default_cwd=tmp_path,
+        audit_log_path=tmp_path / "audit.log",
+        enable_hot_reload=False,
+        execution=ExecutionLimits(max_stdout_bytes=1000, max_stderr_bytes=1000, default_timeout_seconds=5),
+        allow_cwd_roots=[tmp_path],
+        transport="http",
+        http_host="0.0.0.0",
+        http_port=9999,
+        http_path="/bridge",
+    )
+
+    run_server(config)
+
+    assert async_calls.get("called") is True
+    assert dummy.called_kwargs == {
+        "show_banner": False,
+        "transport": "http",
+        "host": "0.0.0.0",
+        "port": 9999,
+        "path": "/bridge",
+    }
+    assert captured_signals == [signal.SIGINT, signal.SIGTERM]

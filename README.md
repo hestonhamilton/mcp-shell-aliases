@@ -66,6 +66,23 @@ Update your MCP host configuration to use the new server, for example in `gemini
 
 Verify by listing the `alias.catalog` tool, reading the `alias://catalog` resource, and executing a safe alias with `dry_run`.
 
+### HTTP/SSE Transports
+
+Some agentic tools prefer to talk over HTTP instead of stdio. You can start the
+server on a local port with:
+
+```bash
+mcp-bash-aliases \
+  --config config.yaml \
+  --transport http \
+  --http-host 127.0.0.1 \
+  --http-port 3921 \
+  --http-path /mcp
+```
+
+Then point your host at `http://127.0.0.1:3921/mcp`. Use `--transport sse` or
+`--transport streamable-http` for alternative FastMCP transports.
+
 ## Project Status
 
 - ✅ Python/FastMCP implementation exposes `alias.exec` and browseable resources.

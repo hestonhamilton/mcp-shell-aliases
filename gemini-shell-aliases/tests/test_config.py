@@ -12,6 +12,10 @@ def test_default_config(tmp_path: Path) -> None:
     assert config.alias_files == []
     assert config.execution.max_stdout_bytes == 10_000
     assert config.enable_hot_reload is True
+    assert config.transport == "stdio"
+    assert config.http_host == "127.0.0.1"
+    assert config.http_port == 3921
+    assert config.http_path == "/mcp"
 
 
 def test_load_from_file(tmp_path: Path) -> None:
@@ -33,8 +37,16 @@ def test_load_from_file(tmp_path: Path) -> None:
 
 def test_env_override(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MCP_BASH_ALIASES_MAX_STDOUT_BYTES", "2048")
+    monkeypatch.setenv("MCP_BASH_ALIASES_TRANSPORT", "http")
+    monkeypatch.setenv("MCP_BASH_ALIASES_HTTP_HOST", "0.0.0.0")
+    monkeypatch.setenv("MCP_BASH_ALIASES_HTTP_PORT", "4000")
+    monkeypatch.setenv("MCP_BASH_ALIASES_HTTP_PATH", "api")
     config = Config.load(cwd=tmp_path)
     assert config.execution.max_stdout_bytes == 2048
+    assert config.transport == "http"
+    assert config.http_host == "0.0.0.0"
+    assert config.http_port == 4000
+    assert config.http_path == "/api"
 
 
 def test_invalid_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -53,20 +65,32 @@ def test_cli_overrides_precedence(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
-    overrides = {"execution": {"max_stdout_bytes": 2048}, "default_cwd": str(tmp_path)}
+    overrides = {
+        "execution": {"max_stdout_bytes": 2048},
+        "default_cwd": str(tmp_path),
+        "transport": "http",
+        "http_host": "0.0.0.0",
+        "http_port": 4500,
+        "http_path": "/custom",
+    }
     config = Config.load(config_path=config_path, cli_overrides=overrides)
 
     assert config.execution.max_stdout_bytes == 2048
     assert config.execution.max_stderr_bytes == 10_000  # untouched default
     assert config.default_cwd == tmp_path
+    assert config.transport == "http"
+    assert config.http_host == "0.0.0.0"
+    assert config.http_port == 4500
+    assert config.http_path == "/custom"
 
 
 def test_json_config(tmp_path: Path) -> None:
     config_path = tmp_path / "config.json"
-    config_path.write_text('{"alias_files": ["/tmp/test_aliases"]}', encoding="utf-8")
+    config_path.write_text('{"alias_files": ["/tmp/test_aliases"], "http_path": "mcp"}', encoding="utf-8")
 
     config = Config.load(config_path=config_path)
     assert config.alias_files == [Path("/tmp/test_aliases")]
+    assert config.http_path == "/mcp"
 
 
 def test_allow_cwd_roots_fallback(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

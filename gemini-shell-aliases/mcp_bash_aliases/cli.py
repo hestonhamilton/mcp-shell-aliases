@@ -74,6 +74,17 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Root directory allowed for alias execution (can be passed multiple times).",
     )
     parser.add_argument(
+        "--transport",
+        choices=["stdio", "http", "sse", "streamable-http"],
+        help="Transport to run the server with (default: stdio).",
+    )
+    parser.add_argument("--http-host", help="Host to bind when using HTTP-based transports.")
+    parser.add_argument("--http-port", type=int, help="Port to bind when using HTTP-based transports.")
+    parser.add_argument(
+        "--http-path",
+        help="URL path for HTTP/SSE transports (default: /mcp).",
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable verbose logging.",
@@ -107,6 +118,14 @@ def build_cli_overrides(args: argparse.Namespace) -> Dict[str, Any]:
 
     if args.allow_cwd_roots:
         overrides["allow_cwd_roots"] = [str(Path(p).expanduser()) for p in args.allow_cwd_roots]
+    if args.transport:
+        overrides["transport"] = args.transport
+    if args.http_host:
+        overrides["http_host"] = args.http_host
+    if args.http_port is not None:
+        overrides["http_port"] = args.http_port
+    if args.http_path:
+        overrides["http_path"] = args.http_path
 
     return overrides
 

@@ -38,6 +38,10 @@ class Config:
     enable_hot_reload: bool = True
     execution: ExecutionLimits = field(default_factory=ExecutionLimits)
     allow_cwd_roots: list[Path] = field(default_factory=lambda: [Path("~").expanduser()])
+    transport: str = "stdio"
+    http_host: str = "127.0.0.1"
+    http_port: int = 3921
+    http_path: str = "/mcp"
 
     @classmethod
     def load(
@@ -94,6 +98,10 @@ def _default_dict() -> Dict[str, Any]:
             "default_timeout_seconds": 20,
         },
         "allow_cwd_roots": [str(Path("~").expanduser())],
+        "transport": "stdio",
+        "http_host": "127.0.0.1",
+        "http_port": 3921,
+        "http_path": "/mcp",
     }
 
 
@@ -160,6 +168,10 @@ def _env_key_map() -> Dict[str, str]:
         f"{ENV_PREFIX}MAX_STDERR_BYTES": "execution.max_stderr_bytes",
         f"{ENV_PREFIX}DEFAULT_TIMEOUT_SECONDS": "execution.default_timeout_seconds",
         f"{ENV_PREFIX}ALLOW_CWD_ROOTS": "allow_cwd_roots",
+        f"{ENV_PREFIX}TRANSPORT": "transport",
+        f"{ENV_PREFIX}HTTP_HOST": "http_host",
+        f"{ENV_PREFIX}HTTP_PORT": "http_port",
+        f"{ENV_PREFIX}HTTP_PATH": "http_path",
     }
 
 
@@ -169,12 +181,19 @@ def _parse_env_value(target: str, raw: str) -> Any:
 
     if target == "enable_hot_reload":
         return raw.lower() in {"1", "true", "yes", "on"}
+    if target in {"transport", "http_host", "http_path", "default_cwd", "audit_log_path"}:
+        return raw
 
     if target.startswith("execution."):
         try:
             return int(raw)
         except ValueError as exc:
             raise ConfigError(f"Environment value for {target} must be an integer") from exc
+    if target == "http_port":
+        try:
+            return int(raw)
+        except ValueError as exc:
+            raise ConfigError("HTTP port must be an integer") from exc
 
     return raw
 
@@ -215,6 +234,13 @@ def _build_config(raw: Dict[str, Any]) -> Config:
         default_timeout_seconds=int(execution_dict.get("default_timeout_seconds", 20)),
     )
 
+    transport = str(raw.get("transport", "stdio")).lower()
+    http_host = str(raw.get("http_host", "127.0.0.1"))
+    http_port = int(raw.get("http_port", 3921))
+    http_path = str(raw.get("http_path", "/mcp"))
+    if not http_path.startswith("/"):
+        http_path = f"/{http_path}"
+
     return Config(
         alias_files=alias_files,
         allow_patterns=list(raw.get("allow_patterns", [])),
@@ -224,4 +250,8 @@ def _build_config(raw: Dict[str, Any]) -> Config:
         enable_hot_reload=bool(raw.get("enable_hot_reload", True)),
         execution=execution,
         allow_cwd_roots=allow_cwd_roots or [default_cwd],
+        transport=transport,
+        http_host=http_host,
+        http_port=http_port,
+        http_path=http_path,
     )

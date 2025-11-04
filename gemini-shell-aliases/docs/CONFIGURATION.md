@@ -20,6 +20,14 @@ The MCP Bash Aliases server is configured via a YAML file (default `config.yaml`
   File path for JSON lines audit logs (folders are created automatically).
 - `enable_hot_reload` (`bool`, default: `true`)
   When enabled, the catalog reloads alias files on every request.
+- `transport` (`str`, default: `stdio`)
+  Allowed values: `stdio`, `http`, `streamable-http`, or `sse`.
+- `http_host` (`str`, default: `127.0.0.1`)
+  Host binding for HTTP/SSE transports.
+- `http_port` (`int`, default: `3921`)
+  Port binding for HTTP/SSE transports.
+- `http_path` (`str`, default: `/mcp`)
+  URL path exposed when serving HTTP/SSE. A leading slash is added automatically.
 
 ## Execution Limits
 
@@ -43,11 +51,13 @@ Environment variable overrides use uppercase keys. Examples:
 - `MCP_BASH_ALIASES_ENABLE_HOT_RELOAD=false`
 - `MCP_BASH_ALIASES_DEFAULT_TIMEOUT_SECONDS=10`
 - `MCP_BASH_ALIASES_ALLOW_CWD_ROOTS="~:~/projects"`
+- `MCP_BASH_ALIASES_TRANSPORT=http`
+- `MCP_BASH_ALIASES_HTTP_HOST=0.0.0.0`
+- `MCP_BASH_ALIASES_HTTP_PORT=3921`
+- `MCP_BASH_ALIASES_HTTP_PATH=/mcp`
 
 List values are colon-delimited. If `ALLOW_CWD_ROOTS` is empty, the server falls
 back to `default_cwd`.
-
-List values are colon-delimited.
 
 ## CLI Flags
 
@@ -62,3 +72,7 @@ Selected overrides are available on the CLI:
 - `--max-stderr-bytes 2048`
 - `--timeout 15`
 - `--allow-cwd-root ~/projects`
+- `--transport http`
+- `--http-host 0.0.0.0`
+- `--http-port 3921`
+- `--http-path /mcp`
