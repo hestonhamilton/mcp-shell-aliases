@@ -2,6 +2,7 @@ from __future__ import annotations
 
 """Configuration loading for the MCP Bash Alias server."""
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional
@@ -56,7 +57,7 @@ class Config:
         file_config = _load_from_file(config_path=config_path, base_dir=base_dir)
         _merge_dict(raw_config, file_config)
 
-        env_config = _load_from_env(env or {})
+        env_config = _load_from_env(env if env is not None else os.environ)
         for dotted_key, value in env_config.items():
             _apply_override(raw_config, dotted_key, value)
 
@@ -71,18 +72,18 @@ def _default_dict() -> Dict[str, Any]:
     return {
         "alias_files": [],
         "allow_patterns": [
-            r"^ls\\b",
-            r"^cat\\b",
-            r"^git\\b(?!\\s+(push|reset|rebase|clean))",
-            r"^grep\\b",
-            r"^rg\\b",
+            r"^ls\b",
+            r"^cat\b",
+            r"^git\b(?!\s+(push|reset|rebase|clean))",
+            r"^grep\b",
+            r"^rg\b",
         ],
         "deny_patterns": [
-            r"^rm\\b",
-            r"^dd\\b",
-            r"^shutdown\\b",
-            r"^reboot\\b",
-            r"^sudo\\b",
+            r"^rm\b",
+            r"^dd\b",
+            r"^shutdown\b",
+            r"^reboot\b",
+            r"^sudo\b",
         ],
         "default_cwd": str(Path("~").expanduser()),
         "audit_log_path": str(Path("~/.local/state/mcp-bash-aliases/audit.log").expanduser()),
@@ -219,4 +220,3 @@ def _build_config(raw: Dict[str, Any]) -> Config:
         execution=execution,
         allow_cwd_roots=allow_cwd_roots or [default_cwd],
     )
-

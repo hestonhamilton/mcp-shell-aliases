@@ -1,17 +1,17 @@
 # Default configuration for the MCP Bash Aliases server.
 alias_files: []
 allow_patterns:
-  - '^ls\\b'
-  - '^cat\\b'
-  - '^git\\b(?!\\s+(push|reset|rebase|clean))'
-  - '^grep\\b'
-  - '^rg\\b'
+  - '^ls\b'
+  - '^cat\b'
+  - '^git\b(?!\s+(push|reset|rebase|clean))'
+  - '^grep\b'
+  - '^rg\b'
 deny_patterns:
-  - '^rm\\b'
-  - '^dd\\b'
-  - '^shutdown\\b'
-  - '^reboot\\b'
-  - '^sudo\\b'
+  - '^rm\b'
+  - '^dd\b'
+  - '^shutdown\b'
+  - '^reboot\b'
+  - '^sudo\b'
 default_cwd: '~'
 allow_cwd_roots:
   - '~'

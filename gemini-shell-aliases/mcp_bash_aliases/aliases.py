@@ -96,5 +96,4 @@ def _unescape(expansion: str, quote: str) -> str:
 
 
 def _is_invalid_name(name: str) -> bool:
-    return bool(re.search(r"[\s!$`\\]", name))
-
+    return bool(re.search(r"[\s!$`\\-]", name))

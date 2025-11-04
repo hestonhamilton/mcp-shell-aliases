@@ -34,9 +34,9 @@ The server loads settings from `config.yaml`, environment variables (`MCP_BASH_A
 alias_files:
   - ~/.bash_aliases
 allow_patterns:
-  - '^ls\\b'
+  - '^ls\b'
 deny_patterns:
-  - '^rm\\b'
+  - '^rm\b'
 ```
 
 ## Safety Model
