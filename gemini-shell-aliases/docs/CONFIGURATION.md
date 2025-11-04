@@ -5,7 +5,7 @@ The MCP Bash Aliases server is configured via a YAML file (default `config.yaml`
 ## Top-Level Fields
 
 - `alias_files` (`list[str]`, default: `[]`)
-  Explicit alias files to parse. Files are read in order; later files override earlier definitions.
+  Explicit alias files to parse. Entries expand `~` to the user's home directory and resolve relative to the config file's directory. Files are read in order; later files override earlier definitions.
 - `allow_patterns` (`list[str]`)
   Regex patterns that mark alias expansions as safe for execution. Patterns are
   decoded with Python's escape sequences, so `"^ls\\b"` and `"^ls\b"` are treated

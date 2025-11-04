@@ -2,7 +2,8 @@
 
 ## No aliases show up
 
-- Ensure `alias_files` points to real files. The server only parses explicitly configured files.
+- Ensure `alias_files` points to real files. Paths with `~` expand to your home directory, and relative entries are resolved next to the config file.
+- If you pass `--config` and the file is missing, startup now fails with `ConfigError: Config file <path> not found`.
 - Run with `--verbose` to see warnings about missing or malformed aliases.
 
 ## Execution denied
