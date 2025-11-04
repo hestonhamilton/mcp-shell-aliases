@@ -127,6 +127,10 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - Implement **stdio** transport for maximum host compatibility.
 - [x] **Graceful shutdown**
   - Handle SIGINT/SIGTERM; flush audit logs.
+- [ ] **HTTP/SSE transport option**
+  - Configurable `transport` option (`stdio`, `http`, `sse`).
+  - Allow binding host/port/path for local agent integration (Codex, Gemini CLI).
+  - Document config snippets for stdio vs. HTTP transports.
 
 ---
 
