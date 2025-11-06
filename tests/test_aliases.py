@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from mcp_bash_aliases.aliases import build_catalog
-from mcp_bash_aliases.safety import SafetyClassifier
+from mcp_shell_aliases.aliases import build_catalog
+from mcp_shell_aliases.safety import SafetyClassifier
 
 
 def classifier() -> SafetyClassifier:

@@ -10,9 +10,9 @@ import pytest
 from fastmcp.client import Client
 from fastmcp.exceptions import ToolError
 
-from mcp_bash_aliases.config import Config, ExecutionLimits
-from mcp_bash_aliases.server import create_app
-from mcp_bash_aliases.server import AliasRuntime, run as run_server
+from mcp_shell_aliases.config import Config, ExecutionLimits
+from mcp_shell_aliases.server import create_app
+from mcp_shell_aliases.server import AliasRuntime, run as run_server
 
 
 def make_config(tmp_path: Path, alias_file: Path) -> Config:
@@ -160,7 +160,7 @@ def test_run_prefers_stdio(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
     def fake_signal(sig: int, handler):  # type: ignore[no-untyped-def]
         captured_signals.append(sig)
 
-    monkeypatch.setattr("mcp_bash_aliases.server.create_app", fake_create_app)
+    monkeypatch.setattr("mcp_shell_aliases.server.create_app", fake_create_app)
     monkeypatch.setattr("signal.signal", fake_signal)
 
     config = Config(
@@ -210,7 +210,7 @@ def test_run_http_transport(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> 
             loop.close()
         async_calls["called"] = True
 
-    monkeypatch.setattr("mcp_bash_aliases.server.create_app", fake_create_app)
+    monkeypatch.setattr("mcp_shell_aliases.server.create_app", fake_create_app)
     monkeypatch.setattr("signal.signal", fake_signal)
     monkeypatch.setattr("asyncio.run", fake_asyncio_run)
 

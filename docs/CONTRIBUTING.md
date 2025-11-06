@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in improving MCP Bash Aliases!
+Thanks for your interest in improving MCP Shell Aliases!
 
 ## Development Setup
 
@@ -14,7 +14,7 @@ Thanks for your interest in improving MCP Bash Aliases!
    ```bash
    pytest
    ruff check .
-   mypy mcp_bash_aliases
+   mypy mcp_shell_aliases
    ```
 
 ## Code Style

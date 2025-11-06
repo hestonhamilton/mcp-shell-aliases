@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-"""Custom exceptions for the MCP Bash Aliases server."""
+"""Custom exceptions for the MCP Shell Aliases server."""
 
 
 class AliasError(RuntimeError):

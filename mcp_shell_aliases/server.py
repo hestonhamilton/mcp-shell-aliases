@@ -75,7 +75,7 @@ class AliasRuntime:
 def create_app(config: Config) -> FastMCP:
     runtime = AliasRuntime.build(config)
     server = FastMCP(
-        "bash-aliases",
+        "shell-aliases",
         instructions="Expose vetted shell aliases as safe MCP tools.",
         version=__version__,
     )

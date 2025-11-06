@@ -1,6 +1,6 @@
 # Configuration Reference
 
-The MCP Bash Aliases server is configured via a YAML file (default `config.yaml`). Values can also be overridden with CLI flags or environment variables prefixed with `MCP_BASH_ALIASES_`.
+The MCP Shell Aliases server is configured via a YAML file (default `config.yaml`). Values can also be overridden with CLI flags or environment variables prefixed with `MCP_SHELL_ALIASES_`.
 
 ## Top-Level Fields
 
@@ -44,7 +44,7 @@ deny_patterns:
 default_cwd: '~'
 allow_cwd_roots:
   - '~'
-audit_log_path: '~/.local/state/mcp-bash-aliases/audit.log'
+audit_log_path: '~/.local/state/mcp-shell-aliases/audit.log'
 execution:
   max_stdout_bytes: 10000
   max_stderr_bytes: 10000
@@ -98,14 +98,14 @@ execution:
 
 Environment variable overrides use uppercase keys. Examples:
 
-- `MCP_BASH_ALIASES_ALIAS_FILES="~/.bash_aliases:~/.bashrc"`
-- `MCP_BASH_ALIASES_ENABLE_HOT_RELOAD=false`
-- `MCP_BASH_ALIASES_DEFAULT_TIMEOUT_SECONDS=10`
-- `MCP_BASH_ALIASES_ALLOW_CWD_ROOTS="~:~/projects"`
-- `MCP_BASH_ALIASES_TRANSPORT=http`
-- `MCP_BASH_ALIASES_HTTP_HOST=0.0.0.0`
-- `MCP_BASH_ALIASES_HTTP_PORT=3921`
-- `MCP_BASH_ALIASES_HTTP_PATH=/mcp`
+- `MCP_SHELL_ALIASES_ALIAS_FILES="~/.bash_aliases:~/.bashrc"`
+- `MCP_SHELL_ALIASES_ENABLE_HOT_RELOAD=false`
+- `MCP_SHELL_ALIASES_DEFAULT_TIMEOUT_SECONDS=10`
+- `MCP_SHELL_ALIASES_ALLOW_CWD_ROOTS="~:~/projects"`
+- `MCP_SHELL_ALIASES_TRANSPORT=http`
+- `MCP_SHELL_ALIASES_HTTP_HOST=0.0.0.0`
+- `MCP_SHELL_ALIASES_HTTP_PORT=3921`
+- `MCP_SHELL_ALIASES_HTTP_PATH=/mcp`
 
 List values are colon-delimited. If `ALLOW_CWD_ROOTS` is empty, the server falls
 back to `default_cwd`.
@@ -131,7 +131,7 @@ Selected overrides are available on the CLI:
 
 ## Connecting to AI Assistants
 
-You can connect the MCP Bash Aliases server to various AI assistants that support custom tools.
+You can connect the MCP Shell Aliases server to various AI assistants that support custom tools.
 
 ### Gemini CLI
 
@@ -142,7 +142,7 @@ The Gemini CLI can connect to MCP servers. The easiest way to add a server is wi
 If you are running the server with `transport: stdio` (the default), you can add it with the following command:
 
 ```bash
-gemini mcp add mcp-bash-aliases python -m mcp_bash_aliases --config /path/to/your/config.yaml
+gemini mcp add mcp-shell-aliases python -m mcp_shell_aliases --config /path/to/your/config.yaml
 ```
 
 This will add the server to your project's `.gemini/settings.json` file. Use the `--scope user` flag to add it to your global `~/.gemini/settings.json` file.
@@ -152,7 +152,7 @@ This will add the server to your project's `.gemini/settings.json` file. Use the
 If you are running the server with `transport: http`, `streamable-http`, or `sse`, you can add it with the following command:
 
 ```bash
-gemini mcp add mcp-bash-aliases http://127.0.0.1:3921/mcp
+gemini mcp add mcp-shell-aliases http://127.0.0.1:3921/mcp
 ```
 
 After adding the server, run `/mcp refresh` in the Gemini CLI to see the new tools.
@@ -167,8 +167,8 @@ For manual configuration, you can create or edit `.gemini/settings.json` in your
 ```json
 {
   "mcpServers": {
-    "mcp-bash-aliases": {
-      "command": ["python", "-m", "mcp_bash_aliases"],
+    "mcp-shell-aliases": {
+      "command": ["python", "-m", "mcp_shell_aliases"],
       "args": ["--config", "/path/to/your/config.yaml"]
     }
   }
@@ -182,7 +182,7 @@ Replace the `command` and `args` with the correct path to your python executable
 ```json
 {
   "mcpServers": {
-    "mcp-bash-aliases": {
+    "mcp-shell-aliases": {
       "httpUrl": "http://127.0.0.1:3921/mcp"
     }
   }
@@ -201,14 +201,14 @@ Here is an example of a tool definition you could use in your application:
 {
   "type": "function",
   "function": {
-    "name": "run_bash_alias",
-    "description": "Runs a bash alias or command and returns the output. Use this to interact with the local shell.",
+    "name": "run_shell_alias",
+    "description": "Runs a shell alias or command and returns the output. Use this to interact with the local shell.",
     "parameters": {
       "type": "object",
       "properties": {
         "command": {
           "type": "string",
-          "description": "The bash alias or command to run."
+          "description": "The shell alias or command to run."
         },
         "cwd": {
           "type": "string",
@@ -221,12 +221,12 @@ Here is an example of a tool definition you could use in your application:
 }
 ```
 
-Your application would then receive a request from the model to call this function, and you would make a request to the `mcp-bash-aliases` server (running in HTTP mode) and return the output to the model.
+Your application would then receive a request from the model to call this function, and you would make a request to the `mcp-shell-aliases` server (running in HTTP mode) and return the output to the model.
 
 ### Anthropic Claude
 
-Claude supports the Model Context Protocol (MCP) directly. If you are using a Claude client that supports MCP (like some versions of Claude Desktop), you can configure it to connect to your `mcp-bash-aliases` server.
+Claude supports the Model Context Protocol (MCP) directly. If you are using a Claude client that supports MCP (like some versions of Claude Desktop), you can configure it to connect to your `mcp-shell-aliases` server.
 
 Look for a setting in your Claude client to add a custom MCP server. You will need to provide the URL of your server, for example: `http://127.0.0.1:3921/mcp`.
 
-Once configured, Claude will be able to see and use the bash aliases you have exposed.
+Once configured, Claude will be able to see and use the shell aliases you have exposed.

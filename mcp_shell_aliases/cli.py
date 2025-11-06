@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-"""Command-line entry point for the MCP Bash Aliases server."""
+"""Command-line entry point for the MCP Shell Aliases server."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run the MCP Bash Aliases server.")
+    parser = argparse.ArgumentParser(description="Run the MCP Shell Aliases server.")
     parser.add_argument("--config", type=Path, help="Path to configuration file.")
     parser.add_argument(
         "--alias-file",
@@ -157,7 +157,7 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     overrides = build_cli_overrides(args)
     config = Config.load(config_path=args.config, cli_overrides=overrides)
-    logger.info("Starting MCP Bash Aliases server")
+    logger.info("Starting MCP Shell Aliases server")
     run(config)
 
 

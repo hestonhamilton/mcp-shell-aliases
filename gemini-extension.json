@@ -8,7 +8,7 @@
     "command": [
       "python3",
       "-m",
-      "mcp_bash_aliases",
+      "mcp_shell_aliases",
       "--config",
       "${extensionPath}/config.yaml"
     ]

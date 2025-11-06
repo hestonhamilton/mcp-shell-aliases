@@ -34,7 +34,6 @@ jsonschema-specifications==2025.9.1
 keyring==25.6.0
 markdown-it-py==4.0.0
 mcp==1.20.0
--e git+ssh://git@github.com/hestonhamilton/gemini-shell-aliases.git@25898ecfa3c785c3d26f9697b60b2ba24243c844#egg=mcp_bash_aliases&subdirectory=gemini-shell-aliases
 mdurl==0.1.2
 more-itertools==10.8.0
 mypy==1.18.2

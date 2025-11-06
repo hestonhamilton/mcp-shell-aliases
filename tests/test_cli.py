@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from mcp_bash_aliases import cli
-from mcp_bash_aliases.config import Config, ExecutionLimits
+from mcp_shell_aliases import cli
+from mcp_shell_aliases.config import Config, ExecutionLimits
 
 
 def test_build_cli_overrides(tmp_path: Path) -> None:
@@ -91,6 +91,6 @@ def test_module_entrypoint(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(cli, "main", fake_main)
 
-    runpy.run_module("mcp_bash_aliases", run_name="__main__")
+    runpy.run_module("mcp_shell_aliases", run_name="__main__")
 
     assert "argv" in called

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-"""Configuration loading for the MCP Bash Alias server."""
+"""Configuration loading for the MCP Shell Alias server."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from typing import Any, Dict, Iterable, Mapping, MutableMapping, Optional, Tuple
 import yaml
 
 DEFAULT_CONFIG_FILENAMES = ("config.yaml", "config.yml", "config.json")
-ENV_PREFIX = "MCP_BASH_ALIASES_"
+ENV_PREFIX = "MCP_SHELL_ALIASES_"
 
 
 class ConfigError(Exception):
@@ -50,7 +50,7 @@ class Config:
     allow_patterns: list[str] = field(default_factory=list)
     deny_patterns: list[str] = field(default_factory=list)
     default_cwd: Path = Path("~").expanduser()
-    audit_log_path: Path = Path("~/.local/state/mcp-bash-aliases/audit.log").expanduser()
+    audit_log_path: Path = Path("~/.local/state/mcp-shell-aliases/audit.log").expanduser()
     enable_hot_reload: bool = True
     execution: ExecutionLimits = field(default_factory=ExecutionLimits)
     allow_cwd_roots: list[Path] = field(default_factory=lambda: [Path("~").expanduser()])
@@ -107,7 +107,7 @@ def _default_dict() -> Dict[str, Any]:
             r"^sudo\b",
         ],
         "default_cwd": str(Path("~").expanduser()),
-        "audit_log_path": str(Path("~/.local/state/mcp-bash-aliases/audit.log").expanduser()),
+        "audit_log_path": str(Path("~/.local/state/mcp-shell-aliases/audit.log").expanduser()),
         "enable_hot_reload": True,
         "execution": {
             "max_stdout_bytes": 10_000,
@@ -256,7 +256,7 @@ def _resolve_path(value: str, *, base_dir: Path) -> Path:
 def _build_config(raw: Dict[str, Any], *, config_dir: Path) -> Config:
     alias_files = [_resolve_path(p, base_dir=config_dir) for p in raw.get("alias_files", [])]
     default_cwd = Path(raw.get("default_cwd", "~")).expanduser()
-    audit_log_path = Path(raw.get("audit_log_path", "~/.local/state/mcp-bash-aliases/audit.log")).expanduser()
+    audit_log_path = Path(raw.get("audit_log_path", "~/.local/state/mcp-shell-aliases/audit.log")).expanduser()
     allow_cwd_roots = [Path(p).expanduser() for p in raw.get("allow_cwd_roots", [])]
 
     execution_dict = raw.get("execution", {})

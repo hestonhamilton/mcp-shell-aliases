@@ -1,6 +1,6 @@
 # Testing Guide
 
-This document explains how we verify the FastMCP “bash aliases” server. The
+This document explains how we verify the FastMCP “shell aliases” server. The
 goal is to keep feedback fast while exercising the real MCP surfaces that
 hosts will use.
 
@@ -9,9 +9,9 @@ hosts will use.
 Run the checks from the project root after activating the virtualenv:
 
 ```bash
-ruff check mcp_bash_aliases tests
-mypy mcp_bash_aliases
-pytest --cov=mcp_bash_aliases --cov-report=term-missing
+ruff check mcp_shell_aliases tests
+mypy mcp_shell_aliases
+pytest --cov=mcp_shell_aliases --cov-report=term-missing
 ```
 
 The first command lint-checks both source and tests, the second enforces type

@@ -1,4 +1,4 @@
-# MCP Bash Aliases Server
+# MCP Shell Aliases Server
 
 A Model Context Protocol (MCP) server that exposes your shell aliases as safe, discoverable tools. It parses configured alias files (e.g. `~/.bash_aliases`) and surfaces them to MCP hosts such as the Gemini CLI.
 
@@ -21,14 +21,14 @@ pip install -e .[dev]
 cp gemini-shell-aliases/examples/sample_config.yaml config.yaml
 
 # run the server over stdio
-mcp-bash-aliases --config config.yaml --verbose
+mcp-shell-aliases --config config.yaml --verbose
 ```
 
-Point your MCP host at the `mcp-bash-aliases` executable (or `python3 -m mcp_bash_aliases`) with the same config file.
+Point your MCP host at the `mcp-shell-aliases` executable (or `python3 -m mcp_shell_aliases`) with the same config file.
 
 ## Configuration
 
-The server loads settings from `config.yaml`, environment variables (`MCP_BASH_ALIASES_*`), and CLI flags. See `docs/CONFIGURATION.md` for the full reference. A minimal config:
+The server loads settings from `config.yaml`, environment variables (`MCP_SHELL_ALIASES_*`), and CLI flags. See `docs/CONFIGURATION.md` for the full reference. A minimal config:
 
 ```yaml
 alias_files:
@@ -56,7 +56,7 @@ Update your MCP host configuration to use the new server, for example in `gemini
     "command": [
       "python3",
       "-m",
-      "mcp_bash_aliases",
+      "mcp_shell_aliases",
       "--config",
       "${extensionPath}/config.yaml"
     ]
@@ -72,7 +72,7 @@ Some agentic tools prefer to talk over HTTP instead of stdio. You can start the
 server on a local port with:
 
 ```bash
-mcp-bash-aliases \
+mcp-shell-aliases \
   --config config.yaml \
   --transport http \
   --http-host 127.0.0.1 \
@@ -94,13 +94,13 @@ Then point your host at `http://127.0.0.1:3921/mcp`. Use `--transport sse` or
 
 ```bash
 # lint
-ruff check mcp_bash_aliases tests
+ruff check mcp_shell_aliases tests
 
 # unit + contract suite (includes in-process MCP smoke tests)
-pytest --cov=mcp_bash_aliases --cov-report=term-missing
+pytest --cov=mcp_shell_aliases --cov-report=term-missing
 
 # type checking (requires stub package: python -m pip install types-PyYAML)
-mypy mcp_bash_aliases
+mypy mcp_shell_aliases
 ```
 
 The test suite exercises alias parsing, sandbox execution, CLI entry points, and

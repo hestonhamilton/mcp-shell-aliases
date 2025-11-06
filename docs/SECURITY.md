@@ -1,6 +1,6 @@
 # Security Overview
 
-The MCP Bash Aliases server is designed with conservative defaults to avoid destructive shell execution.
+The MCP Shell Aliases server is designed with conservative defaults to avoid destructive shell execution.
 
 ## Threat Model
 

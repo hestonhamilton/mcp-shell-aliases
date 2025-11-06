@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from mcp_bash_aliases.aliases import Alias
-from mcp_bash_aliases.config import Config, ExecutionLimits
-from mcp_bash_aliases.errors import CwdNotAllowedError
-from mcp_bash_aliases.execution import ExecutionResult, execute_alias, write_audit_log
+from mcp_shell_aliases.aliases import Alias
+from mcp_shell_aliases.config import Config, ExecutionLimits
+from mcp_shell_aliases.errors import CwdNotAllowedError
+from mcp_shell_aliases.execution import ExecutionResult, execute_alias, write_audit_log
 
 
 def make_config(tmp_path: Path) -> Config:

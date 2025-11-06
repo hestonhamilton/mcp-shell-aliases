@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from mcp_bash_aliases.safety import SafetyClassifier, _normalize_regex
+from mcp_shell_aliases.safety import SafetyClassifier, _normalize_regex
 
 
 def test_normalize_regex_decodes_escape_sequences() -> None:

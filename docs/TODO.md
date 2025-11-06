@@ -1,4 +1,4 @@
-# TODO.md — MCP “Bash Aliases as Tools” Server
+# TODO.md — MCP “Shell Aliases as Tools” Server
 
 This document describes the end-to-end plan to design, implement, harden, test, package, and integrate an MCP server that exposes shell aliases as safe, discoverable tools for AI hosts.
 
@@ -11,7 +11,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [x] **Initialize repo**
   - Py:
     ```bash
-    mkdir mcp-bash-aliases && cd $_
+    mkdir mcp-shell-aliases && cd $_
     uv venv || python -m venv .venv
     source .venv/bin/activate
     pip install -r requirements.txt
@@ -58,7 +58,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - `defaultCwd`: default working directory (e.g., `$HOME`).
   - `maxStdoutBytes`/`maxStderrBytes` (e.g., 10000).
   - `defaultTimeoutSeconds` (e.g., 20).
-  - `auditLogPath` (e.g., `~/.local/state/mcp-bash-aliases/audit.log`).
+  - `auditLogPath` (e.g., `~/.local/state/mcp-shell-aliases/audit.log`).
   - `enableHotReload: true|false`.
 - [x] **Load config with precedence**
   1. CLI flags → 2. Env vars → 3. Project config file → 4. Built-in defaults.
@@ -117,7 +117,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 ## 5) MCP Server: Capabilities & Transport
 
 - [x] **Server metadata**
-  - Name: `bash-aliases`
+  - Name: `shell-aliases`
   - Version: semantic versioning starting at `0.1.0`.
 - [x] **Capabilities**
   - `tools`: enabled
@@ -229,10 +229,10 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 - [ ] **Node**
   - Bundle with `tsc` to `dist/`.
-  - Add `"bin": { "mcp-bash-aliases": "dist/server.js" }` in `package.json`.
+  - Add `"bin": { "mcp-shell-aliases": "dist/server.js" }` in `package.json`.
   - Optional: publish to npm.
 - [x] **Python**
-  - Define console entry point `mcp-bash-aliases` in `pyproject.toml`.
+  - Define console entry point `mcp-shell-aliases` in `pyproject.toml`.
   - Optional: publish to PyPI.
 - [ ] **Versioning**
   - Maintain `CHANGELOG.md`.
@@ -347,7 +347,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   defaultTimeoutSeconds: 20
   maxStdoutBytes: 10000
   maxStderrBytes: 10000
-  auditLogPath: '~/.local/state/mcp-bash-aliases/audit.log'
+  auditLogPath: '~/.local/state/mcp-shell-aliases/audit.log'
   enableHotReload: true
   ```
 
