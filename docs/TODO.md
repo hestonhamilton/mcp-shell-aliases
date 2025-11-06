@@ -54,7 +54,6 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [x] **Config file** `config.yaml` (or JSON/TOML)
   - `aliasFiles`: list of absolute paths to parse.
   - `allowPatterns`: regex list that marks expansions as “safe”.
-  - `denyPatterns`: regex list for hard blocks.
   - `defaultCwd`: default working directory (e.g., `$HOME`).
   - `maxStdoutBytes`/`maxStderrBytes` (e.g., 10000).
   - `defaultTimeoutSeconds` (e.g., 20).
@@ -75,8 +74,8 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - Later files override earlier ones or log a warning; document the policy.
 - [x] **Sanitization**
   - Trim whitespace; reject names with spaces or shell metacharacters.
-- [x] **Allowlist/denylist computation**
-  - `safe = matches(allowPatterns) && !matches(denyPatterns)`.
+- [x] **Allowlist computation**
+  - `safe = matches(allowPatterns)`.
 
 ---
 
@@ -199,7 +198,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 
 - [x] **Unit tests**
   - Parsing (single/double quotes, comments, whitespace).
-  - Allowlist/denylist rules (positive/negative cases).
+  - Allowlist rules (positive/negative cases).
   - Path and env validation.
 - [ ] **Integration tests**
   - Run server over stdio; call:
@@ -210,7 +209,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [ ] **Fuzz tests (lightweight)**
   - Random arg strings to ensure robust quoting and no crashes.
 - [ ] **Security tests**
-  - Attempt to run denied patterns.
+  - Attempt to run disallowed commands to ensure allowlist enforcement.
   - Confirm env scrubbing (no sensitive env surfaces in outputs).
 
 ---
@@ -273,7 +272,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [x] **SECURITY.md**
   - Threat model, guarantees, non-goals, reporting process.
 - [x] **CONFIGURATION.md**
-  - All settings with defaults; allow/deny examples.
+  - All settings with defaults; allowlist examples.
 - [x] **TROUBLESHOOTING.md**
   - Common errors (no aliases parsed, permission issues, timeouts).
 - [x] **EXAMPLES/**
@@ -289,7 +288,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [x] **CWD policy**
   - Allow only `$HOME` and subdirectories by default; configurable.
 - [x] **Command policy**
-  - Explicit denylist for destructive verbs (`rm`, `mv` to `/`, `dd`, `mkfs`, `sudo`, package managers, `reboot`).
+  - Maintain conservative default allowlist (e.g., `ls`, `cat`, read-only git) so destructive verbs (`rm`, `mv` to `/`, `dd`, `mkfs`, `sudo`, package managers, `reboot`) never execute unless explicitly allowed.
 - [x] **User messaging**
   - Clear error messages with remediation hints (e.g., “Run in dryRun or add regex to allowPatterns.”).
 
@@ -309,7 +308,7 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 - [ ] **One tool per alias** mode toggle (for hosts with tool palettes).
 - [ ] **Hot reload** for dynamic tool registration.
 - [ ] **Telemetry (opt-in)**: anonymous usage metrics with clear privacy policy.
-- [ ] **Per-workspace policy files** to tailor allow/deny patterns.
+- [ ] **Per-workspace policy files** to tailor allowlist patterns.
 - [ ] **Command templates**: per-alias schema for structured args instead of raw `args`.
 - [ ] **Containerized execution**: run aliases in a restricted container or user namespace.
 
@@ -337,12 +336,6 @@ This document describes the end-to-end plan to design, implement, harden, test, 
     - '^git\\b(?!\\s+(push|reset|rebase|clean))'
     - '^grep\\b'
     - '^rg\\b'
-  denyPatterns:
-    - '^rm\\b'
-    - '^dd\\b'
-    - '^shutdown\\b'
-    - '^reboot\\b'
-    - '^sudo\\b'
   defaultCwd: '~'
   defaultTimeoutSeconds: 20
   maxStdoutBytes: 10000

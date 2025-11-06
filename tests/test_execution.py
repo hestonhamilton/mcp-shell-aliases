@@ -14,7 +14,6 @@ def make_config(tmp_path: Path) -> Config:
     return Config(
         alias_files=[],
         allow_patterns=[r"^echo"],
-        deny_patterns=[r"^rm"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=False,
@@ -113,7 +112,6 @@ async def test_execute_times_out(tmp_path: Path) -> None:
     config = Config(
         alias_files=[],
         allow_patterns=[r"^python3"],
-        deny_patterns=[r"^false"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=False,

@@ -95,6 +95,14 @@ def test_json_config(tmp_path: Path) -> None:
     assert config.http_path == "/mcp"
 
 
+def test_deny_patterns_config_raises(tmp_path: Path) -> None:
+    config_path = tmp_path / "config.yaml"
+    config_path.write_text("deny_patterns:\n  - '^rm'\n", encoding="utf-8")
+
+    with pytest.raises(ConfigError, match="deny_patterns is no longer supported"):
+        Config.load(config_path=config_path)
+
+
 def test_alias_files_resolve_relative_to_config(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config_dir = tmp_path / "config"
     config_dir.mkdir()

@@ -9,9 +9,8 @@ The MCP Shell Aliases server is configured via a YAML file (default `config.yaml
 - `allow_patterns` (`list[str]`)
   Regex patterns that mark alias expansions as safe for execution. Patterns are
   decoded with Python's escape sequences, so `"^ls\\b"` and `"^ls\b"` are treated
-  the same.
-- `deny_patterns` (`list[str]`)
-  Regex patterns that block execution regardless of allow rules.
+  the same. Any alias expansion that fails to match stays in dry-run mode. The
+  previous denylist has been removed for stronger, allowlist-only safety.
 - `default_cwd` (`str`, default: `~`)
   Default working directory if callers do not provide one.
 - `allow_cwd_roots` (`list[str]`, default: `["~"]`)
@@ -29,6 +28,9 @@ The MCP Shell Aliases server is configured via a YAML file (default `config.yaml
 - `http_path` (`str`, default: `/mcp`)
   URL path exposed when serving HTTP/SSE. A leading slash is added automatically.
 
+> **Heads-up:** legacy `deny_patterns` entries are rejected at load time. Remove the field and expand the
+> allowlist instead.
+
 ### Example `config.yaml`
 
 #### Stdio transport (default)
@@ -39,8 +41,6 @@ alias_files:
 allow_patterns:
   - '^ls\b'
   - '^git\b(?!\s+(push|reset|rebase|clean))'
-deny_patterns:
-  - '^rm\b'
 default_cwd: '~'
 allow_cwd_roots:
   - '~'
@@ -61,8 +61,6 @@ alias_files:
 allow_patterns:
   - '^ls\b'
   - '^rg\b'
-deny_patterns:
-  - '^rm\b'
 default_cwd: '~'
 allow_cwd_roots:
   - '~'
@@ -116,7 +114,6 @@ Selected overrides are available on the CLI:
 
 - `--alias-file ~/.bash_aliases`
 - `--allow-pattern '^git\b'`
-- `--deny-pattern '^rm\b'`
 - `--default-cwd ~/workspace`
 - `--hot-reload/--no-hot-reload`
 - `--max-stdout-bytes 2048`

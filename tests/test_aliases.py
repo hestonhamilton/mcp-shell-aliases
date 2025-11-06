@@ -9,7 +9,7 @@ from mcp_shell_aliases.safety import SafetyClassifier
 
 
 def classifier() -> SafetyClassifier:
-    return SafetyClassifier.from_strings([r"^ls\\b"], [r"^rm\\b"])
+    return SafetyClassifier.from_strings([r"^ls\\b"])
 
 
 def test_parses_aliases(tmp_path: Path) -> None:

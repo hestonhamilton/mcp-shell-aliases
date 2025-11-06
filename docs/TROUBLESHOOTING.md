@@ -10,7 +10,7 @@
 
 - Check the catalog: the alias might be marked `safe: false`. Update `allow_patterns` or enable dry-run.
 - Calls must include `dry_run=false` **and** `confirm=true` to execute.
-- A `ToolError` mentioning "Alias is not marked safe" indicates the denylist matched; run in dry-run mode or adjust the allowlist with care.
+- A `ToolError` mentioning "Alias is not marked safe" indicates the allowlist did not match; run in dry-run mode or adjust the allowlist with care.
 
 ## `cwd` rejected
 

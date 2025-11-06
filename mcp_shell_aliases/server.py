@@ -50,7 +50,7 @@ class AliasRuntime:
 
     @classmethod
     def build(cls, config: Config) -> "AliasRuntime":
-        classifier = SafetyClassifier.from_strings(config.allow_patterns, config.deny_patterns)
+        classifier = SafetyClassifier.from_strings(config.allow_patterns)
         catalog = build_catalog(config.alias_files, classifier)
         return cls(config=config, classifier=classifier, catalog=catalog)
 
