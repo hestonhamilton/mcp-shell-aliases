@@ -1,4 +1,4 @@
-# Default configuration for the MCP Bash Aliases server.
+# Default configuration for the MCP Shell Aliases server.
 alias_files:
   - '~/.bash_aliases'
 allow_patterns:
@@ -16,7 +16,7 @@ deny_patterns:
 default_cwd: '~'
 allow_cwd_roots:
   - '~'
-audit_log_path: '~/.local/state/mcp-bash-aliases/audit.log'
+audit_log_path: '~/.local/state/mcp-shell-aliases/audit.log'
 execution:
   max_stdout_bytes: 10000
   max_stderr_bytes: 10000
