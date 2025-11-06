@@ -29,22 +29,17 @@ logger = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class SafetyClassifier:
-    """Classifies alias expansions as safe or unsafe."""
+    """Classifies alias expansions as safe or unsafe using allowlist-only rules."""
 
     allow_patterns: List[Pattern[str]]
-    deny_patterns: List[Pattern[str]]
 
     @classmethod
-    def from_strings(cls, allow_patterns: Iterable[str], deny_patterns: Iterable[str]) -> "SafetyClassifier":
+    def from_strings(cls, allow_patterns: Iterable[str]) -> "SafetyClassifier":
         return cls(
             allow_patterns=_compile_patterns(allow_patterns),
-            deny_patterns=_compile_patterns(deny_patterns),
         )
 
     def is_safe(self, expansion: str) -> bool:
-        if any(pattern.search(expansion) for pattern in self.deny_patterns):
-            return False
-
         if not self.allow_patterns:
             return False
 

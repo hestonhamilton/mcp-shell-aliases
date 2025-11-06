@@ -7,12 +7,6 @@ allow_patterns:
   - '^git\\b(?!\\s+(push|reset|rebase|clean))'
   - '^grep\\b'
   - '^rg\\b'
-deny_patterns:
-  - '^rm\\b'
-  - '^dd\\b'
-  - '^shutdown\\b'
-  - '^reboot\\b'
-  - '^sudo\\b'
 default_cwd: '~'
 execution:
   default_timeout_seconds: 20

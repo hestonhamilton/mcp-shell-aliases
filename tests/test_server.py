@@ -19,7 +19,6 @@ def make_config(tmp_path: Path, alias_file: Path) -> Config:
     return Config(
         alias_files=[alias_file],
         allow_patterns=[r"^echo"],
-        deny_patterns=[r"^rm"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=True,
@@ -129,7 +128,6 @@ def test_runtime_refresh_disabled(tmp_path: Path) -> None:
     config = Config(
         alias_files=[alias_file],
         allow_patterns=[r"^echo"],
-        deny_patterns=[r"^rm"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=False,
@@ -166,7 +164,6 @@ def test_run_prefers_stdio(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
     config = Config(
         alias_files=[],
         allow_patterns=[r"^echo"],
-        deny_patterns=[r"^rm"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=False,
@@ -217,7 +214,6 @@ def test_run_http_transport(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> 
     config = Config(
         alias_files=[],
         allow_patterns=[r"^echo"],
-        deny_patterns=[r"^rm"],
         default_cwd=tmp_path,
         audit_log_path=tmp_path / "audit.log",
         enable_hot_reload=False,

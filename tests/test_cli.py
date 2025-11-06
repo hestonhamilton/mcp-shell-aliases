@@ -18,8 +18,6 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
             str(tmp_path / "aliases1"),
             "--allow-pattern",
             r"^echo",
-            "--deny-pattern",
-            r"^rm",
             "--default-cwd",
             str(tmp_path),
             "--no-hot-reload",
@@ -41,7 +39,6 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
     overrides = cli.build_cli_overrides(args)
     assert overrides["alias_files"] == [str(tmp_path / "aliases1")]
     assert overrides["allow_patterns"] == [r"^echo"]
-    assert overrides["deny_patterns"] == [r"^rm"]
     assert overrides["default_cwd"] == str(tmp_path)
     assert overrides["enable_hot_reload"] is False
     assert overrides["execution"]["max_stdout_bytes"] == 2048
@@ -66,7 +63,6 @@ def test_main_invokes_run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> No
         return Config(
             alias_files=[],
             allow_patterns=[r"^echo"],
-            deny_patterns=[r"^rm"],
             default_cwd=tmp_path,
             audit_log_path=tmp_path / "audit.log",
             enable_hot_reload=False,

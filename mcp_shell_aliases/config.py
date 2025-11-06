@@ -48,7 +48,6 @@ class Config:
 
     alias_files: list[Path] = field(default_factory=list)
     allow_patterns: list[str] = field(default_factory=list)
-    deny_patterns: list[str] = field(default_factory=list)
     default_cwd: Path = Path("~").expanduser()
     audit_log_path: Path = Path("~/.local/state/mcp-shell-aliases/audit.log").expanduser()
     enable_hot_reload: bool = True
@@ -98,13 +97,6 @@ def _default_dict() -> Dict[str, Any]:
             r"^git\b(?!\s+(push|reset|rebase|clean))",
             r"^grep\b",
             r"^rg\b",
-        ],
-        "deny_patterns": [
-            r"^rm\b",
-            r"^dd\b",
-            r"^shutdown\b",
-            r"^reboot\b",
-            r"^sudo\b",
         ],
         "default_cwd": str(Path("~").expanduser()),
         "audit_log_path": str(Path("~/.local/state/mcp-shell-aliases/audit.log").expanduser()),
@@ -183,7 +175,6 @@ def _env_key_map() -> Dict[str, str]:
     return {
         f"{ENV_PREFIX}ALIAS_FILES": "alias_files",
         f"{ENV_PREFIX}ALLOW_PATTERNS": "allow_patterns",
-        f"{ENV_PREFIX}DENY_PATTERNS": "deny_patterns",
         f"{ENV_PREFIX}DEFAULT_CWD": "default_cwd",
         f"{ENV_PREFIX}AUDIT_LOG_PATH": "audit_log_path",
         f"{ENV_PREFIX}ENABLE_HOT_RELOAD": "enable_hot_reload",
@@ -199,7 +190,7 @@ def _env_key_map() -> Dict[str, str]:
 
 
 def _parse_env_value(target: str, raw: str) -> Any:
-    if target in {"alias_files", "allow_patterns", "deny_patterns", "allow_cwd_roots"}:
+    if target in {"alias_files", "allow_patterns", "allow_cwd_roots"}:
         return [item for item in raw.split(":") if item]
 
     if target == "enable_hot_reload":
@@ -255,6 +246,8 @@ def _resolve_path(value: str, *, base_dir: Path) -> Path:
 
 def _build_config(raw: Dict[str, Any], *, config_dir: Path) -> Config:
     alias_files = [_resolve_path(p, base_dir=config_dir) for p in raw.get("alias_files", [])]
+    if "deny_patterns" in raw:
+        raise ConfigError("deny_patterns is no longer supported; remove it and rely on allow_patterns only.")
     default_cwd = Path(raw.get("default_cwd", "~")).expanduser()
     audit_log_path = Path(raw.get("audit_log_path", "~/.local/state/mcp-shell-aliases/audit.log")).expanduser()
     allow_cwd_roots = [Path(p).expanduser() for p in raw.get("allow_cwd_roots", [])]
@@ -276,7 +269,6 @@ def _build_config(raw: Dict[str, Any], *, config_dir: Path) -> Config:
     return Config(
         alias_files=alias_files,
         allow_patterns=list(raw.get("allow_patterns", [])),
-        deny_patterns=list(raw.get("deny_patterns", [])),
         default_cwd=default_cwd,
         audit_log_path=audit_log_path,
         enable_hot_reload=bool(raw.get("enable_hot_reload", True)),

@@ -47,13 +47,6 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Regex pattern that marks an alias expansion as safe.",
     )
     parser.add_argument(
-        "--deny-pattern",
-        action="append",
-        dest="deny_patterns",
-        default=None,
-        help="Regex pattern that denies execution of an alias expansion.",
-    )
-    parser.add_argument(
         "--default-cwd",
         type=str,
         help="Default working directory for alias execution.",
@@ -115,8 +108,6 @@ def build_cli_overrides(args: argparse.Namespace) -> Dict[str, Any]:
         overrides["alias_files"] = [str(Path(p).expanduser()) for p in args.alias_files]
     if args.allow_patterns:
         overrides["allow_patterns"] = list(args.allow_patterns)
-    if args.deny_patterns:
-        overrides["deny_patterns"] = list(args.deny_patterns)
     if args.default_cwd:
         overrides["default_cwd"] = str(Path(args.default_cwd).expanduser())
     if args.hot_reload is not None:

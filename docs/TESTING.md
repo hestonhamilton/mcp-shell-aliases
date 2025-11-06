@@ -26,7 +26,7 @@ the full unit/contract suite with coverage output. Coverage is expected to be
 | `tests/test_aliases.py` | Alias parsing, dedupe, safety classification flags |
 | `tests/test_config.py` | File/env precedence, CLI overrides, error cases |
 | `tests/test_execution.py` | Sandbox behaviour, timeouts, audit logging |
-| `tests/test_safety.py` | Regex normalisation + deny/allow logic |
+| `tests/test_safety.py` | Regex normalisation + allowlist logic |
 | `tests/test_cli.py` | CLI argument parsing, module entry point wiring |
 | `tests/test_server.py` | Contract/integration tests using `fastmcp.Client` |
 

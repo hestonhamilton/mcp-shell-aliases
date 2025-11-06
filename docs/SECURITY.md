@@ -10,7 +10,7 @@ The MCP Shell Aliases server is designed with conservative defaults to avoid des
 
 ## Mitigations
 
-- **Allowlist / denylist**: Regex patterns classify aliases as safe. Unsafe aliases can only run in `dry_run` mode.
+- **Allowlist enforcement**: Regex patterns classify aliases as safe. Anything outside the allowlist is forced into `dry_run` mode.
 - **Dry-run first**: Tools default to `dry_run=True`. Callers must set `confirm=true` and `dry_run=false` to execute.
 - **Environment scrubbing**: Execution runs with a minimal environment (`PATH=/usr/bin:/bin`) and a deterministic `HOME`/`PWD`.
 - **Working directory policy**: Requested `cwd` must reside in an allowlisted root (default `~`).

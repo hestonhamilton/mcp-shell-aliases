@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that exposes your shell aliases as safe, d
 
 - Discovers aliases from explicitly configured files.
 - Emits MCP tools/resources for dry-run and real execution.
-- Enforces allowlist/denylist safety rules and dry-run by default.
+- Enforces allowlist-only safety rules and dry-run by default.
 - Sandboxes execution with constrained environment, cwd policy, and timeouts.
 - Writes structured audit logs for every invocation.
 
@@ -35,13 +35,11 @@ alias_files:
   - ~/.bash_aliases
 allow_patterns:
   - '^ls\b'
-deny_patterns:
-  - '^rm\b'
 ```
 
 ## Safety Model
 
-- Aliases are classified using allow/deny regexes. Unsafe aliases can only run in dry-run mode.
+- Aliases are classified using allowlist regexes. Anything that fails to match stays in dry-run mode.
 - Real execution requires `dry_run=false` and `confirm=true` tool arguments.
 - Commands execute via `/bin/bash -lc` with a scrubbed environment, bounded output, and timeouts.
 - Audit logs capture every call. See `docs/SECURITY.md` for details.
@@ -86,7 +84,7 @@ Then point your host at `http://127.0.0.1:3921/mcp`. Use `--transport sse` or
 ## Project Status
 
 - ✅ Python/FastMCP implementation exposes `alias.exec` and browseable resources.
-- ✅ Safety rails enforced: dry-run default, allow/deny patterns, timeouts, cwd policy, audit logs.
+- ✅ Safety rails enforced: dry-run default, allowlist patterns, timeouts, cwd policy, audit logs.
 - ✅ Hot reload is available via on-demand catalog refresh (no file watcher yet).
 - 🚧 Prompt helpers, inotify-style hot reload, and advanced hardening are still on the roadmap (see `TODO.md`).
 
