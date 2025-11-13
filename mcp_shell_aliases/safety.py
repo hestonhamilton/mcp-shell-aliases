@@ -47,13 +47,17 @@ class SafetyClassifier:
 
 
 def _normalize_regex(pattern: str) -> str:
-    """Allow configuration strings to use escaped sequences like ``\\b`` or ``\\s``."""
-    if "\\" not in pattern:
-        return pattern
-    try:
-        return pattern.encode("utf-8").decode("unicode_escape")
-    except UnicodeDecodeError:
-        return pattern
+    """Normalize backslash escaping without interpreting regex tokens.
+
+    We only collapse double backslashes (``\\\\``) to single (``\\``) so that
+    JSON-style escaped patterns become valid regex strings. We intentionally do
+    not decode via ``unicode_escape`` because that would turn tokens like
+    ``\b`` (word boundary) into a literal backspace character, breaking
+    expected matches.
+    """
+    if "\\\\" in pattern:
+        return pattern.replace("\\\\", "\\")
+    return pattern
 
 
 def _compile_patterns(patterns: Iterable[str]) -> List[Pattern[str]]:

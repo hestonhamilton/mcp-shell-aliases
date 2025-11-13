@@ -2,11 +2,15 @@
 alias_files:
   - '~/.bash_aliases'
 allow_patterns:
-  - '^ls\b'
+  # Patterns match the alias expansion (e.g., "ls ..."), not the alias name.
+  # Allow optional leading whitespace and optional path prefix to ls.
+  - '^\\s*(?:\\S*/)?ls\\b'
   - '^cat\b'
   - '^git\b(?!\s+(push|reset|rebase|clean))'
+  - '^gls\b'
   - '^grep\b'
   - '^rg\b'
+  - '^tableflip\b'
 default_cwd: '~'
 allow_cwd_roots:
   - '~'
@@ -16,7 +20,7 @@ execution:
   max_stderr_bytes: 10000
   default_timeout_seconds: 20
 enable_hot_reload: true
-transport: stdio
+transport: http
 http_host: '127.0.0.1'
 http_port: 3921
 http_path: '/mcp'

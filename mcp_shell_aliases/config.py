@@ -117,7 +117,7 @@ def _default_dict() -> Dict[str, Any]:
 def _load_from_file(*, config_path: Optional[Path], base_dir: Path) -> Tuple[Dict[str, Any], Optional[Path]]:
     candidate_paths: Iterable[Path]
     explicit = config_path is not None
-    if config_path:
+    if config_path is not None:
         candidate_paths = (config_path,)
     else:
         candidate_paths = (base_dir / name for name in DEFAULT_CONFIG_FILENAMES)
@@ -133,6 +133,7 @@ def _load_from_file(*, config_path: Optional[Path], base_dir: Path) -> Tuple[Dic
             raise ConfigError(f"Failed to read config file {expanded}") from exc
 
     if explicit:
+        assert config_path is not None
         missing = config_path.expanduser()
         raise ConfigError(f"Config file {missing} not found")
 

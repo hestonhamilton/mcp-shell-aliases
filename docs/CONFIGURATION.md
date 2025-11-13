@@ -149,8 +149,10 @@ This will add the server to your project's `.gemini/settings.json` file. Use the
 If you are running the server with `transport: http`, `streamable-http`, or `sse`, you can add it with the following command:
 
 ```bash
-gemini mcp add mcp-shell-aliases http://127.0.0.1:3921/mcp
+gemini mcp add mcp-shell-aliases http://127.0.0.1:3921/mcp --transport http
 ```
+
+**Note:** For HTTP and SSE transports, the `mcp-shell-aliases` server must be running independently before you add it to the Gemini CLI. The CLI will not automatically start HTTP/SSE servers.
 
 After adding the server, run `/mcp refresh` in the Gemini CLI to see the new tools.
 

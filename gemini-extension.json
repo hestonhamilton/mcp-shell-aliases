@@ -5,13 +5,7 @@
   "author": "Heston Hamilton",
   "license": "GNU GPLv3",
   "mcp_server": {
-    "command": [
-      "python3",
-      "-m",
-      "mcp_shell_aliases",
-      "--config",
-      "${extensionPath}/config.yaml"
-    ]
+    "httpUrl": "http://127.0.0.1:3921/mcp"
   },
   "configuration": {
     "aliasFiles": [

@@ -58,6 +58,7 @@ class AliasRuntime:
         if not self.config.enable_hot_reload:
             return
         logger.debug("Reloading alias catalog due to hot reload")
+        self.classifier = SafetyClassifier.from_strings(self.config.allow_patterns)
         self.catalog = build_catalog(self.config.alias_files, self.classifier)
 
     def get_alias(self, name: str) -> Alias:

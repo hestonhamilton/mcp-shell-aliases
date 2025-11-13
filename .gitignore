@@ -19,3 +19,7 @@ pytest-cache/
 # Logs
 logs/
 *.log
+.coverage
+
+# Agents
+.gemini/
