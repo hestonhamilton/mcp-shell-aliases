@@ -44,15 +44,46 @@ allow_patterns:
 - Commands execute via `/bin/bash -lc` with a scrubbed environment, bounded output, and timeouts.
 - Audit logs capture every call. See `docs/SECURITY.md` for details.
 
-## Host Integration
+## Gemini Extension Integration
 
-Update your MCP host configuration to use the new server, for example in `gemini-extension.json`:
+This project can be installed as a Gemini extension, allowing the Gemini CLI to discover and utilize your shell aliases as tools.
+
+### Installation via Gemini CLI
+
+To install the `mcp-shell-aliases` server as a Gemini extension, you can use the `gemini extensions install` command. This command expects a GitHub repository URL where the `gemini-extension.json` file is located at the root.
+
+```bash
+gemini extensions install https://github.com/your-org/mcp-shell-aliases.git
+```
+
+**Note:** If your repository is private, you will need to ensure your Gemini CLI environment has access to your SSH keys or appropriate credentials.
+
+After installation, the Gemini CLI will use the `mcp_server` command defined in the `gemini-extension.json` to run the MCP server.
+
+### Docker-based Testing Workflow
+
+For development and testing of the Gemini extension, especially when dealing with private repositories or specific environments, a Docker-based workflow is recommended.
+
+1.  **Build the Docker Image:**
+    ```bash
+    docker build -t mcp-shell-aliases-gemini-extension .
+    ```
+2.  **Run the Test Script:**
+    The `test_extension.sh` script automates the process of running a Docker container, installing the extension within it, and performing basic verification.
+    ```bash
+    ./test_extension.sh
+    ```
+    **Important:** Ensure your `github.key` is added to your SSH agent (`ssh-add github.key`) if you are testing with a private repository, as the script uses SSH agent forwarding. Remember to replace the placeholder `GITHUB_REPO_URL` in `test_extension.sh` with your actual repository URL.
+
+### Manual Configuration
+
+For manual configuration or if you prefer to run the server directly, you can update your MCP host configuration (e.g., in `.gemini/settings.json`) to use the server.
 
 ```json
 {
   "mcp_server": {
     "command": [
-      "python3",
+      "python",
       "-m",
       "mcp_shell_aliases",
       "--config",

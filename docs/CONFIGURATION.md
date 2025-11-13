@@ -132,9 +132,47 @@ You can connect the MCP Shell Aliases server to various AI assistants that suppo
 
 ### Gemini CLI
 
-The Gemini CLI can connect to MCP servers. The easiest way to add a server is with the `gemini mcp add` command.
+The Gemini CLI can connect to MCP servers.
 
-#### Stdio Transport
+#### Gemini Extension Configuration (`gemini-extension.json`)
+
+When installing the `mcp-shell-aliases` server as a Gemini extension using `gemini extensions install <github_url>`, the Gemini CLI reads the `gemini-extension.json` file from the root of the repository. This file defines how the MCP server should be launched.
+
+A typical `gemini-extension.json` for this project would look like this:
+
+```json
+{
+  "name": "shell-aliases",
+  "version": "0.1.0",
+  "description": "Expose shell aliases as safe MCP tools via FastMCP.",
+  "author": "Gemini Shell Aliases Team",
+  "license": "MIT",
+  "mcp_server": {
+    "command": [
+      "python",
+      "-m",
+      "mcp_shell_aliases",
+      "--config",
+      "${extensionPath}/config.yaml"
+    ]
+  },
+  "configuration": {
+    "aliasFiles": [
+      "~/.bash_aliases"
+    ]
+  }
+}
+```
+
+In this configuration:
+- The `mcp_server.command` specifies the executable and arguments to run the MCP server. `${extensionPath}` is a variable that resolves to the installation directory of the extension.
+- The `configuration` block allows the extension to provide default settings that can be overridden by the user.
+
+#### Direct Server Connection (`gemini mcp add`)
+
+If you are running the server independently (not as an installed extension) and want to connect the Gemini CLI to it, you can use the `gemini mcp add` command.
+
+##### Stdio Transport
 
 If you are running the server with `transport: stdio` (the default), you can add it with the following command:
 
@@ -144,7 +182,7 @@ gemini mcp add mcp-shell-aliases python -m mcp_shell_aliases --config /path/to/y
 
 This will add the server to your project's `.gemini/settings.json` file. Use the `--scope user` flag to add it to your global `~/.gemini/settings.json` file.
 
-#### HTTP Transport
+##### HTTP Transport
 
 If you are running the server with `transport: http`, `streamable-http`, or `sse`, you can add it with the following command:
 
@@ -161,7 +199,7 @@ For manual configuration, you can create or edit `.gemini/settings.json` in your
 <details>
 <summary>Manual Configuration Examples</summary>
 
-#### Stdio Transport
+##### Stdio Transport
 
 ```json
 {
@@ -176,7 +214,7 @@ For manual configuration, you can create or edit `.gemini/settings.json` in your
 
 Replace the `command` and `args` with the correct path to your python executable and `config.yaml`.
 
-#### HTTP Transport
+##### HTTP Transport
 
 ```json
 {

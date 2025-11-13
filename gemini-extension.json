@@ -5,7 +5,17 @@
   "author": "Heston Hamilton",
   "license": "GNU GPLv3",
   "mcp_server": {
+<<<<<<< HEAD
     "httpUrl": "http://127.0.0.1:3921/mcp"
+=======
+    "command": [
+      "python",
+      "-m",
+      "mcp_shell_aliases",
+      "--config",
+      "${extensionPath}/config.yaml"
+    ]
+>>>>>>> 32a9fb8 (feat: Implement Docker-based workflow and Gemini extension setup)
   },
   "configuration": {
     "aliasFiles": [

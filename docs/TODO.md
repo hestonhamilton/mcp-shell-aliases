@@ -1,69 +1,44 @@
-# TODO.md — MCP “Shell Aliases as Tools” Server
+# TODO: Gemini Extension Release
 
-This document describes the end-to-end plan to design, implement, harden, test, package, and integrate an MCP server that exposes shell aliases as safe, discoverable tools for AI hosts.
+This document outlines the tasks required to package and release the MCP Shell Aliases server as a Gemini extension.
 
----
+## 1. Docker-based Workflow
 
-## 0) Project Setup
+- [ ] **Create a Dockerfile:**
+  - Start from a suitable base image (e.g., `python:3.10-slim`).
+  - Install Gemini CLI and its dependencies.
+  - Copy the `mcp-shell-aliases` project files into the image.
+  - Install the `mcp-shell-aliases` server and its dependencies (`pip install .`).
 
-- [x] **Pick language & SDK**
-  - Python: FastMCP
-- [x] **Initialize repo**
-  - Py:
-    ```bash
-    mkdir mcp-shell-aliases && cd $_
-    uv venv || python -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    ```
-- [x] **Repo hygiene**
-  - Add `.editorconfig`, `.gitignore`, `LICENSE`, `CONTRIBUTING.md`.
-  - Set `package.json` or `pyproject.toml` scripts for `build`, `start:stdio`, `test`, `lint`.
+- [ ] **Handle SSH Key Mounting:**
+  - Document how to mount the `github.key` SSH key into the Docker container to authenticate with private GitHub repositories. This will be necessary for the `gemini extensions install` command to fetch the extension from a private URL.
 
----
+- [ ] **Installation and Testing Script:**
+  - Create a script (`test_extension.sh`) that:
+    - Builds the Docker image.
+    - Runs the container with the mounted SSH key.
+    - Inside the container, runs `gemini extensions install <private_github_url>` to install the `mcp-shell-aliases` server.
+    - Verifies that the installation was successful by checking if the `alias.catalog` tool is available in Gemini.
+    - Runs a test alias to ensure the server is working correctly.
 
-## 1) Requirements & Threat Model
+## 2. Gemini Extension Manifest
 
-- [x] **Functional goals** (prompts deferred to later milestone)
-  - Parse and catalog shell aliases from explicit files (e.g., `~/.bash_aliases`, `~/.bashrc`, `/etc/bash.bashrc`).
-  - Expose:
-    - **Tools**: execute a chosen alias with optional args (default to dry-run).
-    - **Resources**: `alias://catalog` (JSON list) and `alias://{name}` (details).
-    - **Prompts** (optional): “suggest” and “confirm” flows.
-- [x] **Non-functional goals**
-  - Safety by default (allowlist, dry-run, timeouts, env scrub, audit logs).
-  - Deterministic behavior across hosts (stdio transport).
-- [x] **Threat model**
-  - Prevent destructive commands.
-  - Avoid leaking secrets via environment or output.
-  - Constrain execution context (PATH, CWD, time, output size).
+- [ ] **Update `gemini-extension.json`:**
+  - Ensure the `mcp_server` command is correctly configured to run within the Gemini environment.
+  - Verify that all necessary files are included in the extension package.
 
----
+## 3. Documentation
 
-## 2) Data Model & Config
+- [ ] **Update `README.md`:**
+  - Add a section on how to install and use the server as a Gemini extension.
+  - Include instructions for the Docker-based workflow.
 
-- [x] **Alias object**
-  ```ts
-  type Alias = {
-    name: string
-    expansion: string
-    safe: boolean           // computed via allowlist rules
-    sourceFile: string      // provenance
-  }
-  ```
-- [x] **Config file** `config.yaml` (or JSON/TOML)
-  - `aliasFiles`: list of absolute paths to parse.
-  - `allowPatterns`: regex list that marks expansions as “safe”.
-  - `defaultCwd`: default working directory (e.g., `$HOME`).
-  - `maxStdoutBytes`/`maxStderrBytes` (e.g., 10000).
-  - `defaultTimeoutSeconds` (e.g., 20).
-  - `auditLogPath` (e.g., `~/.local/state/mcp-shell-aliases/audit.log`).
-  - `enableHotReload: true|false`.
-- [x] **Load config with precedence**
-  1. CLI flags → 2. Env vars → 3. Project config file → 4. Built-in defaults.
+- [ ] **Update `docs/CONFIGURATION.md`:**
+  - Add examples specific to the Gemini extension setup.
 
----
+## 4. Acceptance Criteria
 
+<<<<<<< HEAD
 ## 3) Alias Discovery & Parsing
 
 - [x] **Implement parser**
@@ -384,3 +359,9 @@ This document describes the end-to-end plan to design, implement, harden, test, 
 ---
 
 Delivering this sequence yields a robust, host-friendly MCP server that models aliases as discoverable, auditable tools with strong safety guarantees and predictable behavior.
+=======
+- [ ] **Successful Installation:**
+  - `gemini extensions install <github_url>` successfully installs the MCP server.
+- [ ] **Tool Availability:**
+  - The `mcp-shell-aliases` tools (e.g., `alias.catalog`, `alias.exec`) are available and functional within the Gemini CLI after installation.
+>>>>>>> 32a9fb8 (feat: Implement Docker-based workflow and Gemini extension setup)
