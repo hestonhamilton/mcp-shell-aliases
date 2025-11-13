@@ -2,8 +2,8 @@
   "name": "shell-aliases",
   "version": "0.1.0",
   "description": "Expose shell aliases as safe MCP tools via FastMCP.",
-  "author": "Gemini Shell Aliases Team",
-  "license": "MIT",
+  "author": "Heston Hamilton",
+  "license": "GNU GPLv3",
   "mcp_server": {
     "command": [
       "python3",
