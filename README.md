@@ -18,7 +18,7 @@ source .venv/bin/activate
 pip install -e .[dev]
 
 # copy and edit a config
-cp gemini-shell-aliases/examples/sample_config.yaml config.yaml
+cp examples/sample_config.yaml config.yaml
 
 # run the server over stdio
 mcp-shell-aliases --config config.yaml --verbose
@@ -81,6 +81,30 @@ mcp-shell-aliases \
 Then point your host at `http://127.0.0.1:3921/mcp`. Use `--transport sse` or
 `--transport streamable-http` for alternative FastMCP transports.
 
+If using the Gemini CLI, ensure your project’s `.gemini/settings.json` has an
+`mcpServers` entry with `httpUrl` (not `command`) for HTTP transports:
+
+```json
+{
+  "mcpServers": {
+    "mcp-shell-aliases": {
+      "httpUrl": "http://127.0.0.1:3921/mcp"
+    }
+  }
+}
+```
+
+To add an HTTP server to the Gemini CLI, you must explicitly use the `--transport http` flag:
+
+```bash
+gemini mcp add mcp-shell-aliases http://127.0.0.1:3921/mcp --transport http
+```
+
+**Note:** For HTTP and SSE transports, the `mcp-shell-aliases` server must be running independently before you add it to the Gemini CLI. The CLI will not automatically start HTTP/SSE servers.
+
+If the CLI still can’t connect, switch the server to `--transport sse` and reuse
+the same URL.
+
 ## Project Status
 
 - ✅ Python/FastMCP implementation exposes `alias.exec` and browseable resources.
@@ -119,6 +143,37 @@ the FastMCP server itself via the official Python client. See
 ```
 
 Unsafe aliases will always return dry-run results unless they match the configured allowlist patterns.
+
+## Tool API and CWD Guidance
+
+Use these parameters with `alias.exec` to control execution and working directory.
+
+- name: alias name to run.
+- args: optional string appended to the alias expansion.
+- dry_run: true by default; set to false to execute.
+- confirm: required when `dry_run` is false. Acts as a safety gate.
+- cwd: working directory to run in; defaults to `default_cwd` (usually `~`). Must be inside `allow_cwd_roots`.
+- timeout_seconds: optional positive integer; must be ≤ 5× `execution.default_timeout_seconds`.
+
+Response fields include `command`, `cwd`, `exitCode`, `stdout`, `stderr`, `truncated`, `timedOut`, `dryRun`, plus `aliasSafe` and `sourceFile` for context.
+
+### Running in the right directory (cwd)
+
+- Default behavior: If you do not pass `cwd`, commands run in `default_cwd` (home by default).
+- For repo‑specific aliases (e.g., git), pass a project path explicitly:
+  - `alias.exec {"name":"gst","dry_run": false, "confirm": true, "cwd": "/path/to/repo"}`
+- With agents: Ask the agent to include a `cwd` that points at your project root when calling tools. Example instruction: “When running git aliases, set `cwd` to the current project directory.”
+
+### Safety and allowlist
+
+- An alias is “safe” only if its expansion matches `allow_patterns`.
+- Unsafe aliases can still be previewed with `dry_run: true`.
+- Real execution requires both `dry_run: false` and `confirm: true`.
+
+### Hot reload vs. config changes
+
+- The server re-parses alias files and re-applies the in-memory allowlist on each request (hot reload).
+- Editing `config.yaml` itself (e.g., changing `allow_patterns`, `default_cwd`, or `alias_files`) requires restarting the server for changes to take effect.
 
 ## Contributing
 

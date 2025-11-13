@@ -151,6 +151,32 @@ This document describes the end-to-end plan to design, implement, harden, test, 
   - At startup, dynamically register `alias.<name>` for each safe alias with `args`, `cwd`, `timeoutSeconds`.
   - Pros: nice UX in tool palettes. Cons: many tools; requires hot-reload hooks.
 
+- [ ] **Improve `alias.exec` output UX**
+  - Filter infra banners from stdout (e.g., leading `Starting Docker: docker`).
+  - Add optional summary fields for common commands (behind a flag), e.g.:
+    - `git status`: branch, counts (staged/unstaged/untracked), short file lists.
+    - `grep/rg`: match count, files matched.
+  - Include `elapsedMs`, and line counts for stdout/stderr.
+  - Ensure plain-text, ANSI-free output with an additional `plainStdout` field if needed.
+  - Smarter truncation: head+tail with `truncationReason` and `totalBytes` metadata.
+  - Consider a request arg `summarize: boolean` or `format: "raw" | "summary"` (default raw to preserve compatibility).
+  - Keep current `command`, `cwd`, `exitCode`, `stdout`, `stderr` for machine readability; only add fields.
+  - Code touchpoints (verified by search):
+    - `mcp_shell_aliases/execution.py`
+      - `execute_alias(...)`: filter banner before decode; measure elapsed time; compute line counts; pass through new metadata.
+      - `ExecutionResult`: extend with `elapsed_ms`, `stdout_lines`, `stderr_lines`, optional `plain_stdout`; update `to_payload()` to include new fields.
+      - `_decode_and_truncate(...)`: optionally support head+tail truncation and return total bytes + reason.
+    - `mcp_shell_aliases/server.py`
+      - `alias_exec(...)` tool: add optional arg `summarize: bool` or `format: str`; include in example string; pass through to execution/formatting.
+      - Where payload is built (`result.to_payload()`), ensure additive fields are returned; keep `aliasSafe`/`sourceFile` append.
+    - Documentation
+      - `README.md`: Tool API section — document new arg(s) and response fields.
+      - `docs/CONFIGURATION.md`: note no config needed for summaries unless a global default is added.
+      - `docs/TROUBLESHOOTING.md`: add note about filtered banners and summary mode.
+    - Tests
+      - `tests/test_execution.py`: add coverage for banner filtering, elapsed timing presence, and truncation metadata.
+      - `tests/test_server.py`: assert response contains new fields (feature-flagged to avoid breaking existing behavior).
+
 ---
 
 ## 7) Resources (Browseable Catalog)

@@ -5,11 +5,16 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
 
 # Build artifacts
 build/
 dist/
 *.egg-info/
+htmlcov/
+coverage.xml
+.tox/
+.cache/
 
 # Tool caches
 .mypy_cache/
@@ -19,3 +24,48 @@ pytest-cache/
 # Logs
 logs/
 *.log
+.coverage
+.coverage.*
+
+# Agents
+.gemini/
+
+# Editor/OS cruft
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Env and local overrides (often contain secrets)
+.env
+.env.*
+.envrc
+.direnv/
+*.env.local
+
+# Secrets and credentials (be conservative but helpful)
+*.key
+*-key.pem
+*_key.pem
+*.pem
+*.p12
+*.pfx
+*.p8
+id_rsa*
+id_ed25519*
+service-account*.json
+credentials*.json
+secrets.*
+*.secret
+*.secrets.*
+.pypirc
+.npmrc
+
+# Infrastructure / state files that may leak tokens
+.terraform/
+terraform.tfstate*
+docker-compose.override.yml
+.docker.env
+
+# Node (if present in this repo)
+node_modules/
