@@ -143,6 +143,20 @@ def test_resolve_path_handles_oserror(monkeypatch: pytest.MonkeyPatch, tmp_path:
     assert str(p).endswith("relative/file.txt")
 
 
+def test_parse_env_value_fallthrough_returns_raw() -> None:
+    from mcp_shell_aliases.config import _parse_env_value
+
+    assert _parse_env_value("other.key", "rawval") == "rawval"
+
+
+def test_apply_override_creates_nested_dict() -> None:
+    from mcp_shell_aliases.config import _apply_override
+
+    target: dict[str, object] = {}
+    _apply_override(target, "a.b", 1)
+    assert target == {"a": {"b": 1}}
+
+
 def test_deny_patterns_config_raises(tmp_path: Path) -> None:
     config_path = tmp_path / "config.yaml"
     config_path.write_text("deny_patterns:\n  - '^rm'\n", encoding="utf-8")

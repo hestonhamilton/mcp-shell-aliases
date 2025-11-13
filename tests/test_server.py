@@ -347,3 +347,29 @@ async def test_alias_exec_timeout_assignment(alias_file: Path, tmp_path: Path) -
 
     # At bound (5x default): should pass and assign override
     await tool.fn(name="safe", dry_run=False, confirm=True, timeout_seconds=25)
+
+
+def test_run_handles_keyboardinterrupt(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, caplog) -> None:
+    class DummyServer:
+        def run_stdio(self) -> None:
+            raise KeyboardInterrupt
+
+    def fake_create_app(config: Config) -> DummyServer:  # type: ignore[override]
+        return DummyServer()
+
+    monkeypatch.setattr("mcp_shell_aliases.server.create_app", fake_create_app)
+    monkeypatch.setattr("signal.signal", lambda *args, **kwargs: None)
+
+    config = Config(
+        alias_files=[],
+        allow_patterns=[r"^echo"],
+        default_cwd=tmp_path,
+        audit_log_path=tmp_path / "audit.log",
+        enable_hot_reload=False,
+        execution=ExecutionLimits(max_stdout_bytes=1000, max_stderr_bytes=1000, default_timeout_seconds=5),
+        allow_cwd_roots=[tmp_path],
+    )
+
+    with caplog.at_level("INFO"):
+        run_server(config)
+    assert any("Server stopped by user request." in rec.message for rec in caplog.records)
