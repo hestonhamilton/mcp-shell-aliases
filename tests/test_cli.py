@@ -23,6 +23,10 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
             "--no-hot-reload",
             "--max-stdout-bytes",
             "2048",
+            "--max-stderr-bytes",
+            "1024",
+            "--timeout",
+            "15",
             "--allow-cwd-root",
             str(tmp_path / "workspace"),
             "--transport",
@@ -42,6 +46,8 @@ def test_build_cli_overrides(tmp_path: Path) -> None:
     assert overrides["default_cwd"] == str(tmp_path)
     assert overrides["enable_hot_reload"] is False
     assert overrides["execution"]["max_stdout_bytes"] == 2048
+    assert overrides["execution"]["max_stderr_bytes"] == 1024
+    assert overrides["execution"]["default_timeout_seconds"] == 15
     assert overrides["allow_cwd_roots"] == [str(tmp_path / "workspace")]
     assert overrides["transport"] == "http"
     assert overrides["http_host"] == "0.0.0.0"

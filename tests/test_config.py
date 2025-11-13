@@ -57,6 +57,12 @@ def test_invalid_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
         Config.load()
 
 
+def test_invalid_http_port_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("MCP_SHELL_ALIASES_HTTP_PORT", "not-an-int")
+    with pytest.raises(ConfigError, match="HTTP port must be an integer"):
+        Config.load()
+
+
 def test_cli_overrides_precedence(tmp_path: Path) -> None:
     config_path = tmp_path / "config.yaml"
     config_path.write_text(
@@ -93,6 +99,48 @@ def test_json_config(tmp_path: Path) -> None:
     config = Config.load(config_path=config_path)
     assert config.alias_files == [Path("/tmp/test_aliases")]
     assert config.http_path == "/mcp"
+
+
+def test_unsupported_config_extension_raises(tmp_path: Path) -> None:
+    bad = tmp_path / "config.txt"
+    bad.write_text("alias_files: []\n", encoding="utf-8")
+    with pytest.raises(ConfigError) as exc:
+        Config.load(config_path=bad)
+    # The loader wraps underlying errors; verify root cause message
+    cause = exc.value.__cause__
+    assert cause is not None and "Unsupported config extension" in str(cause)
+
+
+def test_config_top_level_must_be_mapping(tmp_path: Path) -> None:
+    bad_json = tmp_path / "config.json"
+    bad_json.write_text('["not", "a", "mapping"]', encoding="utf-8")
+    with pytest.raises(ConfigError) as exc:
+        Config.load(config_path=bad_json)
+    cause = exc.value.__cause__
+    assert cause is not None and "must contain a mapping" in str(cause)
+
+
+def test_apply_override_errors_when_overwriting_non_mapping() -> None:
+    from mcp_shell_aliases.config import _apply_override
+
+    target: dict[str, object] = {"execution": 1}
+    with pytest.raises(ConfigError, match="Cannot override nested key execution.max_stdout_bytes"):
+        _apply_override(target, "execution.max_stdout_bytes", 10)
+
+
+def test_resolve_path_handles_oserror(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    from mcp_shell_aliases.config import _resolve_path
+    # Monkeypatch Path.resolve to raise OSError
+    class Boom(Exception):
+        pass
+
+    def explode(self, strict=False):  # type: ignore[no-untyped-def]
+        raise OSError("boom")
+
+    monkeypatch.setattr(Path, "resolve", explode, raising=True)
+    # Should return candidate without raising
+    p = _resolve_path("relative/file.txt", base_dir=tmp_path)
+    assert str(p).endswith("relative/file.txt")
 
 
 def test_deny_patterns_config_raises(tmp_path: Path) -> None:
