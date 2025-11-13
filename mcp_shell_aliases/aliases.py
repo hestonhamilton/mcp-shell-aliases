@@ -21,6 +21,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 import re
+import shlex
+import shutil
 from pathlib import Path
 from typing import Dict, List
 
@@ -63,14 +65,23 @@ def build_catalog(alias_files: List[Path], classifier: SafetyClassifier) -> Alia
     for path in alias_files:
         parsed = _parse_file(path, classifier)
         for alias in parsed:
-            if alias.name in aliases:
+            existing = aliases.get(alias.name)
+            if existing is None:
+                aliases[alias.name] = alias
+                continue
+
+            # Prefer overrides whose head command is actually available on this system.
+            # This helps when dotfiles define OS-conditional aliases like `gls` (GNU ls)
+            # that are not present on Linux. Without evaluating shell conditionals, we
+            # approximate intent by refusing to override with an unavailable command.
+            if _can_override(existing, alias):
                 logger.debug(
                     "Alias %s overridden by %s (previous source %s)",
                     alias.name,
                     alias.source_file,
-                    aliases[alias.name].source_file,
+                    existing.source_file,
                 )
-            aliases[alias.name] = alias
+                aliases[alias.name] = alias
 
     return AliasCatalog(aliases)
 
@@ -113,3 +124,49 @@ def _unescape(expansion: str, quote: str) -> str:
 
 def _is_invalid_name(name: str) -> bool:
     return bool(re.search(r"[\s!$`\\-]", name))
+
+
+_BUILTIN_OK: set[str] = {
+    # Common bash builtins that are valid in non-interactive shells
+    "echo",
+    "printf",
+    "source",
+    "." ,
+    "test",
+    "true",
+    "false",
+}
+
+
+def _head_command(expansion: str) -> str | None:
+    try:
+        parts = shlex.split(expansion, posix=True)
+    except ValueError:
+        return None
+    return parts[0] if parts else None
+
+
+def _is_command_available(cmd: str | None) -> bool:
+    if not cmd:
+        return False
+    if cmd in _BUILTIN_OK:
+        return True
+    return shutil.which(cmd) is not None
+
+
+def _can_override(existing: Alias, candidate: Alias) -> bool:
+    """Decide whether a duplicate alias should override the existing one.
+
+    Heuristic: allow override if the candidate's head command is available.
+    If not available but the existing one's command is also unavailable, allow
+    override (last-wins). Otherwise, keep the existing definition.
+    """
+    cand_cmd = _head_command(candidate.expansion)
+    exist_cmd = _head_command(existing.expansion)
+
+    cand_ok = _is_command_available(cand_cmd)
+    if cand_ok:
+        return True
+
+    exist_ok = _is_command_available(exist_cmd)
+    return not exist_ok
