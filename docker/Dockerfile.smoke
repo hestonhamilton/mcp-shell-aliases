@@ -1,0 +1,20 @@
+FROM python:3.11-slim
+
+ENV PYTHONUNBUFFERED=1
+WORKDIR /app
+
+# System deps (optional, keep minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl bash && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy repo into image
+COPY . /app
+
+# Expose HTTP port for optional HTTP smoke checks
+EXPOSE 3921
+
+# Default command starts the server via bootstrap in HTTP mode so the container
+# becomes healthy without an MCP stdio client. For stdio testing, override CMD.
+CMD ["python3", "/app/bootstrap.py", "--config", "/app/config.yaml", "--transport", "http", "--http-host", "0.0.0.0", "--http-port", "3921"]
+

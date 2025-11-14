@@ -5,7 +5,12 @@
   "author": "Heston Hamilton",
   "license": "GNU GPLv3",
   "mcp_server": {
-    "httpUrl": "http://127.0.0.1:3921/mcp"
+    "command": [
+      "python3",
+      "${extensionPath}/bootstrap.py",
+      "--config",
+      "${extensionPath}/config.yaml"
+    ]
   },
   "configuration": {
     "aliasFiles": [

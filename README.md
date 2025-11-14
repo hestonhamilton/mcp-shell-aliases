@@ -96,6 +96,46 @@ If using the Gemini CLI, ensure your project’s `.gemini/settings.json` has an
 
 To add an HTTP server to the Gemini CLI, you must explicitly use the `--transport http` flag:
 
+## Gemini Extensions (Stdio)
+
+This repository includes a `gemini-extension.json` manifest so it can be installed directly with the Gemini CLI:
+
+```bash
+gemini extensions install https://github.com/<you>/mcp-shell-aliases
+```
+
+The manifest configures the MCP server as a stdio server. It launches a small `bootstrap.py` that creates a local virtual environment under the extension folder, installs minimal runtime dependencies, and then starts the server via `-m mcp_shell_aliases` with the bundled `config.yaml`.
+
+After installation, the server appears in the Gemini CLI under the extension’s name. You can override the config path by editing the installed extension’s manifest or by copying `config.yaml` into your project and updating your `.gemini/settings.json` entry.
+
+### Minimal Docker Smoke Test
+
+You can sanity-check that the bootstrap and dependencies work in a clean environment using Docker (no Gemini CLI required):
+
+```bash
+bash scripts/docker-smoke.sh
+```
+
+This builds a tiny image, provisions the venv inside the container, and starts the server in HTTP mode on `localhost:3921` so you can hit it with `curl` while confirming the package installs cleanly. For stdio, override the `CMD` when running the container and attach a client.
+
+### Full Gemini Install Test (Docker)
+
+Run a full install test that boots a fresh container, installs the Gemini CLI, installs this extension from a Git URL, and verifies it appears in `gemini extensions list`:
+
+```bash
+# Provide the Git URL for your repo and the Gemini CLI install command.
+EXT_URL=https://github.com/<you>/mcp-shell-aliases \
+GEMINI_INSTALL="npm i -g @google/gemini-cli" \
+bash scripts/docker-gemini-extensions-test.sh
+
+# Or pass the URL as an arg (EXT_URL is optional if repo has a remote):
+bash scripts/docker-gemini-extensions-test.sh https://github.com/<you>/mcp-shell-aliases
+```
+
+Notes:
+- The script uses `node:20-bookworm-slim` and installs Python 3. It requires network access to fetch the CLI and your repo.
+- If the Gemini CLI package name differs in your environment, set `GEMINI_INSTALL` to the correct install command (e.g., `npm i -g <pkg>`).
+
 ```bash
 gemini mcp add mcp-shell-aliases http://127.0.0.1:3921/mcp --transport http
 ```
